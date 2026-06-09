@@ -22,161 +22,8 @@ const db = new sqlite3.Database('./drz.db', (err) => {
         console.error('Ошибка подключения к БД:', err);
     } else {
         console.log('✅ Подключено к SQLite базе данных');
-        initDatabase();
     }
 });
-
-// Создание всех таблиц и начальных данных
-function initDatabase() {
-    db.serialize(() => {
-        // Создаём таблицы
-        db.run(`CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            phone TEXT,
-            password TEXT NOT NULL,
-            role TEXT DEFAULT 'user',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS doctors (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            position TEXT,
-            experience TEXT,
-            description TEXT,
-            photo TEXT,
-            specialization TEXT,
-            is_active INTEGER DEFAULT 1
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS services (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            icon TEXT,
-            category TEXT,
-            price REAL,
-            old_price REAL,
-            is_popular INTEGER DEFAULT 0,
-            for_kids INTEGER DEFAULT 1
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS promotions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            discount INTEGER,
-            old_price REAL,
-            new_price REAL,
-            badge TEXT,
-            color TEXT,
-            icon TEXT,
-            end_date TEXT,
-            is_active INTEGER DEFAULT 1
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS gallery (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            src TEXT NOT NULL,
-            alt TEXT,
-            category TEXT DEFAULT 'clinic',
-            sort_order INTEGER DEFAULT 0
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS reviews (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            doctor_id INTEGER,
-            rating INTEGER,
-            text TEXT,
-            date TEXT,
-            verified INTEGER DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS appointments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            doctor_id INTEGER,
-            service_id INTEGER,
-            child_name TEXT,
-            child_age INTEGER,
-            appointment_date TEXT,
-            appointment_time TEXT,
-            comment TEXT,
-            status TEXT DEFAULT 'pending',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS children_profiles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            name TEXT NOT NULL,
-            birth_date TEXT,
-            medical_card TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        db.run(`CREATE TABLE IF NOT EXISTS bonuses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            amount REAL,
-            description TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        console.log('✅ Все таблицы созданы/проверены');
-
-        // Добавляем тестового админа если нет
-        db.get('SELECT id FROM users WHERE role = ?', ['admin'], async (err, row) => {
-            if (!row) {
-                const hashedPassword = await bcrypt.hash('admin123', 10);
-                db.run('INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
-                    ['Администратор', 'admin@zubov.ru', '+73532788888', hashedPassword, 'admin']);
-                console.log('✅ Админ создан: admin@zubov.ru / admin123');
-            }
-        });
-
-        // Добавляем тестовых врачей если таблица пустая
-        db.get('SELECT COUNT(*) as count FROM doctors', [], (err, row) => {
-            if (row && row.count === 0) {
-                db.run(`INSERT INTO doctors (name, position, experience, description, specialization, is_active) VALUES 
-                    ('Иванова Екатерина', 'Детский стоматолог', '12 лет', 'Опытный детский стоматолог', 'Терапия', 1),
-                    ('Петров Алексей', 'Детский ортодонт', '8 лет', 'Специалист по исправлению прикуса', 'Ортодонтия', 1),
-                    ('Смирнова Ольга', 'Детский хирург', '15 лет', 'Хирург с большим опытом', 'Хирургия', 1)`);
-                console.log('✅ Тестовые врачи добавлены');
-            }
-        });
-
-        // Добавляем тестовые услуги
-        db.get('SELECT COUNT(*) as count FROM services', [], (err, row) => {
-            if (row && row.count === 0) {
-                db.run(`INSERT INTO services (title, description, icon, category, price, old_price, is_popular, for_kids) VALUES 
-                    ('Осмотр и консультация', 'Первичный осмотр', '🔍', 'Диагностика', 0, 500, 1, 1),
-                    ('Лечение кариеса молочного зуба', 'Лечение кариеса', '🦷', 'Терапия', 3500, 4000, 1, 1),
-                    ('Лечение кариеса постоянного зуба', 'Лечение кариеса', '🦷', 'Терапия', 4500, 5000, 0, 1),
-                    ('Герметизация фиссур', 'Защита от кариеса', '🛡️', 'Профилактика', 2500, 3000, 1, 1),
-                    ('Лечение под седацией', 'Лечение во сне', '😴', 'Терапия', 8000, 9000, 1, 1),
-                    ('Профессиональная чистка', 'Чистка зубов', '✨', 'Гигиена', 3000, 3500, 0, 1),
-                    ('Удаление молочного зуба', 'Удаление зуба', '🏥', 'Хирургия', 2500, 3000, 0, 1),
-                    ('Удаление постоянного зуба', 'Удаление зуба', '🏥', 'Хирургия', 4000, 4500, 0, 1)`);
-                console.log('✅ Тестовые услуги добавлены');
-            }
-        });
-
-        // Добавляем тестовые акции
-        db.get('SELECT COUNT(*) as count FROM promotions', [], (err, row) => {
-            if (row && row.count === 0) {
-                db.run(`INSERT INTO promotions (title, description, discount, old_price, new_price, badge, color, icon, end_date, is_active) VALUES 
-                    ('Скидка 37% на лечение 3-х зубов', 'При лечении трёх зубов одновременно', 37, 13500, 8500, 'Выгодно', '#FF4757', '🔥', '2026-12-31', 1),
-                    ('Первый визит - подарок', 'Каждому новому пациенту', 100, 500, 0, 'Подарок', '#2ED573', '🎁', '2026-12-31', 1)`);
-                console.log('✅ Тестовые акции добавлены');
-            }
-        });
-    });
-}
 
 // Middleware
 app.use(cors({
@@ -530,46 +377,68 @@ app.put('/api/appointments/:id/cancel', requireAuth, (req, res) => {
 });
 
 app.post('/api/auth/register', async (req, res) => {
+    console.log('📝 ЗАПРОС НА ОБЫЧНУЮ РЕГИСТРАЦИЮ');
+    console.log('Body:', JSON.stringify(req.body));
+
     const { name, email, phone, password } = req.body;
+    console.log('Данные:', { name, email, phone, password: '***' });
 
     if (!name || !email || !phone || !password) {
+        console.log('❌ Ошибка: не все поля заполнены');
         res.status(400).json({ message: 'Все поля обязательны' });
         return;
     }
 
     if (password.length < 6) {
+        console.log('❌ Ошибка: пароль короткий');
         res.status(400).json({ message: 'Пароль должен быть не менее 6 символов' });
         return;
     }
 
+    console.log('🔐 Хеширую пароль...');
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('✅ Пароль хеширован');
 
+    console.log('🔍 Проверяю существование email...');
     db.get('SELECT id FROM users WHERE email = ?', [email], (err, row) => {
         if (err) {
+            console.log('❌ Ошибка БД при проверке email:', err.message);
             res.status(500).json({ error: err.message });
             return;
         }
         if (row) {
+            console.log('❌ Email уже существует');
             res.status(400).json({ message: 'Пользователь с таким email уже существует' });
             return;
         }
+        console.log('✅ Email свободен');
 
+        console.log('📝 Создаю пользователя...');
         db.run(
             'INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
             [name, email, phone, hashedPassword, 'user'],
             function(err) {
                 if (err) {
+                    console.log('❌ Ошибка создания пользователя:', err.message);
                     res.status(500).json({ error: err.message });
                     return;
                 }
 
+                console.log('✅ Пользователь создан, ID:', this.lastID);
+
+                console.log('🎁 Добавляю бонус...');
                 db.run('INSERT INTO bonuses (user_id, amount, description) VALUES (?, ?, ?)',
                     [this.lastID, 500, 'Бонус за регистрацию'],
                     (err) => {
-                        if (err) console.error('Ошибка добавления бонуса:', err);
+                        if (err) {
+                            console.error('❌ Ошибка добавления бонуса:', err.message);
+                        } else {
+                            console.log('✅ Бонус добавлен');
+                        }
                     }
                 );
 
+                console.log('✅ Регистрация успешна!');
                 res.json({ id: this.lastID, message: 'Регистрация успешна' });
             }
         );
@@ -619,59 +488,88 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // Регистрация с возможностью сразу добавить ребенка
+// Регистрация с возможностью сразу добавить ребенка
 app.post('/api/auth/register-with-child', async (req, res) => {
+    console.log('📝 ЗАПРОС НА РЕГИСТРАЦИЮ');
+    console.log('Body:', JSON.stringify(req.body));
+
     const { name, email, phone, password, child } = req.body;
+    console.log('Данные:', { name, email, phone, password: '***', child });
 
     if (!name || !email || !phone || !password) {
+        console.log('❌ Ошибка: не все поля заполнены');
         res.status(400).json({ message: 'Все поля обязательны' });
         return;
     }
 
     if (password.length < 6) {
+        console.log('❌ Ошибка: пароль короткий');
         res.status(400).json({ message: 'Пароль должен быть не менее 6 символов' });
         return;
     }
 
+    console.log('🔐 Хеширую пароль...');
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('✅ Пароль хеширован');
 
+    console.log('🔍 Проверяю существование email...');
     db.get('SELECT id FROM users WHERE email = ?', [email], (err, row) => {
         if (err) {
+            console.log('❌ Ошибка БД при проверке email:', err.message);
             res.status(500).json({ error: err.message });
             return;
         }
         if (row) {
+            console.log('❌ Email уже существует');
             res.status(400).json({ message: 'Пользователь с таким email уже существует' });
             return;
         }
+        console.log('✅ Email свободен');
 
+        console.log('📝 Создаю пользователя...');
         db.run(
             'INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
             [name, email, phone, hashedPassword, 'user'],
             function(err) {
                 if (err) {
+                    console.log('❌ Ошибка создания пользователя:', err.message);
                     res.status(500).json({ error: err.message });
                     return;
                 }
 
                 const userId = this.lastID;
+                console.log('✅ Пользователь создан, ID:', userId);
 
                 // Добавляем бонус за регистрацию
+                console.log('🎁 Добавляю бонус...');
                 db.run('INSERT INTO bonuses (user_id, amount, description) VALUES (?, ?, ?)',
                     [userId, 500, 'Бонус за регистрацию'],
-                    (err) => { if (err) console.error('Ошибка добавления бонуса:', err); }
+                    (err) => {
+                        if (err) {
+                            console.error('❌ Ошибка добавления бонуса:', err.message);
+                        } else {
+                            console.log('✅ Бонус добавлен');
+                        }
+                    }
                 );
 
                 // Добавляем ребенка, если данные переданы
                 if (child && child.name && child.birth_date) {
+                    console.log('👶 Добавляю ребенка:', child.name, child.birth_date);
                     db.run(
                         'INSERT INTO children_profiles (user_id, name, birth_date, medical_card) VALUES (?, ?, ?, ?)',
                         [userId, child.name, child.birth_date, child.medical_card || null],
                         (err) => {
-                            if (err) console.error('Ошибка добавления ребенка:', err);
+                            if (err) {
+                                console.error('❌ Ошибка добавления ребенка:', err.message);
+                            } else {
+                                console.log('✅ Ребенок добавлен');
+                            }
                         }
                     );
                 }
 
+                console.log('✅ Регистрация успешна!');
                 res.json({ id: userId, message: 'Регистрация успешна' });
             }
         );
@@ -1150,6 +1048,6 @@ app.use((req, res) => {
 });
 
 // Запуск
-app.listen(PORT, HOST, () => {
+app.listen(PORT, 'localhost', () => {
     console.log(`Server started on http://${HOST}:${PORT}`);
 });
