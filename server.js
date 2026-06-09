@@ -5,11 +5,9 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 const https = require('https');
-const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,45 +16,13 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 app.set('trust proxy', 1);
 
-// Функция поиска доступной для записи папки
-function ensureWritableDir(dir) {
-    const absoluteDir = path.resolve(dir);
-    fs.mkdirSync(absoluteDir, {recursive: true});
-    const probe = path.join(absoluteDir, `.write-test-${process.pid}-${Date.now()}`);
-    fs.writeFileSync(probe, 'ok');
-    fs.unlinkSync(probe);
-    return absoluteDir;
-}
+// Используем переменные окружения
+const DB_PATH = process.env.DB_PATH || '/tmp/drz.db';
 
-function pickStorageRoot() {
-    const candidates = [
-        process.env.STORAGE_ROOT,
-        process.env.DATA_DIR,
-        path.join(__dirname, '.data'),
-        path.join(os.tmpdir(), 'zubov')
-    ].filter(Boolean);
-
-    for (const candidate of candidates) {
-        try {
-            return ensureWritableDir(candidate);
-        } catch (err) {
-            console.warn(`Путь не доступен для записи: ${candidate} (${err.message})`);
-        }
-    }
-
-    throw new Error('Не найдена папка для записи');
-}
-
-const storageRoot = pickStorageRoot();
-const dbPath = path.join(storageRoot, 'drz.db');
-const sessionsDbPath = path.join(storageRoot, 'sessions.db');
-
-console.log(`📁 Папка для данных: ${storageRoot}`);
-console.log(`📁 БД: ${dbPath}`);
-console.log(`📁 Сессии: ${sessionsDbPath}`);
+console.log('📁 БД:', DB_PATH);
 
 // База данных
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
         process.exit(1);
@@ -74,13 +40,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Сессии
+// Сессии в памяти (без БД)
 app.use(session({
-    store: new SQLiteStore({
-        db: sessionsDbPath,
-        table: 'sessions',
-        concurrentDB: true
-    }),
     secret: 'detskaya-stomatologiya-secret-key-2026',
     resave: false,
     saveUninitialized: false,
@@ -510,7 +471,6 @@ app.post('/api/auth/logout', (req, res) => {
     });
 });
 
-// Регистрация с возможностью сразу добавить ребенка
 app.post('/api/auth/register-with-child', async (req, res) => {
     const { name, email, phone, password, child } = req.body;
 
@@ -547,13 +507,11 @@ app.post('/api/auth/register-with-child', async (req, res) => {
 
                 const userId = this.lastID;
 
-                // Добавляем бонус за регистрацию
                 db.run('INSERT INTO bonuses (user_id, amount, description) VALUES (?, ?, ?)',
                     [userId, 500, 'Бонус за регистрацию'],
                     (err) => { if (err) console.error('Ошибка добавления бонуса:', err); }
                 );
 
-                // Добавляем ребенка, если данные переданы
                 if (child && child.name && child.birth_date) {
                     db.run(
                         'INSERT INTO children_profiles (user_id, name, birth_date, medical_card) VALUES (?, ?, ?, ?)',
@@ -570,7 +528,6 @@ app.post('/api/auth/register-with-child', async (req, res) => {
     });
 });
 
-// Удаление ребенка
 app.delete('/api/children/:id', requireAuth, (req, res) => {
     const childId = req.params.id;
     const userId = req.session.userId;
