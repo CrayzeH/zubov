@@ -15,19 +15,24 @@ const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '0.0.0.0';
 const isProduction = process.env.NODE_ENV === 'production';
 
-app.set('trust proxy', 1);
+// Пути через переменные окружения
+const DB_PATH = process.env.DB_PATH || '/tmp/drz.db';
+const SESSIONS_DB_PATH = process.env.SESSIONS_DB_PATH || '/tmp/sessions.db';
+const PUBLIC_PATH = process.env.PUBLIC_PATH || path.join(__dirname, 'public');
+const ASSETS_PATH = process.env.ASSETS_PATH || path.join(PUBLIC_PATH, 'assets', 'assets');
 
-// Используем /tmp для баз данных (доступно для записи на Timeweb Cloud)
-const DB_PATH = '/tmp/drz.db';
-const SESSIONS_DB_PATH = '/tmp/sessions.db';
+app.set('trust proxy', 1);
 
 // База данных
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
+        console.error('Путь к БД:', DB_PATH);
         process.exit(1);
     } else {
         console.log('✅ Подключено к SQLite базе данных:', DB_PATH);
+        console.log('✅ Публичная папка:', PUBLIC_PATH);
+        console.log('✅ Папка ассетов:', ASSETS_PATH);
         initDatabase();
     }
 });
@@ -143,6 +148,8 @@ function initDatabase() {
 function startServer() {
     app.listen(PORT, HOST, () => {
         console.log(`🚀 Сервер запущен на http://${HOST}:${PORT}`);
+        console.log(`📁 БД: ${DB_PATH}`);
+        console.log(`📁 Сессии: ${SESSIONS_DB_PATH}`);
     });
 }
 
@@ -153,7 +160,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(PUBLIC_PATH));
 
 // Сессии
 app.use(session({
@@ -226,13 +233,16 @@ function safeAssetFileName(fileName, contentType) {
 
 // ========== GIGACHAT AI ==========
 const agent = new https.Agent({ rejectUnauthorized: false });
-const AUTHORIZATION_KEY = process.env.GIGACHAT_AUTH_KEY || "MDE5ZDVlYTktMjRmNy03NDZlLWEzMjktZWI4ODg0ZWQwNGFiOmUyMTM4YWMzLTRkYzItNDEwYy1hOTAyLTk0MTI0NTBhZWY0Yg==";
-const GIGACHAT_AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
-const GIGACHAT_API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions";
+const GIGACHAT_AUTH_KEY = process.env.GIGACHAT_AUTH_KEY || "MDE5ZDVlYTktMjRmNy03NDZlLWEzMjktZWI4ODg0ZWQwNGFiOmUyMTM4YWMzLTRkYzItNDEwYy1hOTAyLTk0MTI0NTBhZWY0Yg==";
+const GIGACHAT_AUTH_URL = process.env.GIGACHAT_AUTH_URL || "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
+const GIGACHAT_API_URL = process.env.GIGACHAT_API_URL || "https://gigachat.devices.sberbank.ru/api/v1/chat/completions";
+const AI_ENABLED = process.env.AI_ENABLED !== 'false'; // По умолчанию включено
 
 let tokenCache = { token: null, expiresAt: 0 };
 
 async function getAccessToken() {
+    if (!AI_ENABLED) return null;
+
     if (tokenCache.token && tokenCache.expiresAt > Date.now() / 1000) {
         return tokenCache.token;
     }
@@ -245,7 +255,7 @@ async function getAccessToken() {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Accept': 'application/json',
                 'RqUID': rquid,
-                'Authorization': `Basic ${AUTHORIZATION_KEY}`
+                'Authorization': `Basic ${GIGACHAT_AUTH_KEY}`
             },
             body: 'scope=GIGACHAT_API_PERS',
             agent: agent
@@ -266,6 +276,8 @@ async function getAccessToken() {
 }
 
 async function askGigaChat(userMessage) {
+    if (!AI_ENABLED) return null;
+
     const token = await getAccessToken();
     if (!token) return null;
 
@@ -962,7 +974,7 @@ app.post('/api/admin/gallery/upload', requireAdmin, express.raw({ type: 'image/*
 
     const originalName = decodeURIComponent(req.headers['x-file-name'] || 'gallery.jpg');
     const fileName = safeAssetFileName(originalName, contentType);
-    const targetDir = path.join(__dirname, 'public', 'assets', 'assets');
+    const targetDir = ASSETS_PATH;
     fs.mkdirSync(targetDir, { recursive: true });
     fs.writeFileSync(path.join(targetDir, fileName), req.body);
 
@@ -1072,52 +1084,52 @@ app.post('/api/chat', async (req, res) => {
 
 // ========== СТРАНИЦЫ ==========
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'index.html'));
 });
 app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'about.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'about.html'));
 });
 app.get('/services', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'services.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'services.html'));
 });
 app.get('/price', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'price.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'price.html'));
 });
 app.get('/doctors', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'doctors.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'doctors.html'));
 });
 app.get('/hot_sales', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'hot_sales.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'hot_sales.html'));
 });
 app.get('/appointment', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'appointment.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'appointment.html'));
 });
 app.get('/contacts', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'contacts.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'contacts.html'));
 });
 app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'profile.html'));
 });
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'login.html'));
 });
 app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'register.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'register.html'));
 });
 app.get('/payment', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'payment.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'payment.html'));
 });
 app.get('/rules', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'rules.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'rules.html'));
 });
 app.get('/reviews', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'reviews.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'reviews.html'));
 });
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    res.sendFile(path.join(PUBLIC_PATH, 'admin.html'));
 });
 
 // 404
 app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+    res.status(404).sendFile(path.join(PUBLIC_PATH, '404.html'));
 });
