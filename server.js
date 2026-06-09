@@ -22,8 +22,161 @@ const db = new sqlite3.Database('./drz.db', (err) => {
         console.error('Ошибка подключения к БД:', err);
     } else {
         console.log('✅ Подключено к SQLite базе данных');
+        initDatabase();
     }
 });
+
+// Создание всех таблиц и начальных данных
+function initDatabase() {
+    db.serialize(() => {
+        // Создаём таблицы
+        db.run(`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            phone TEXT,
+            password TEXT NOT NULL,
+            role TEXT DEFAULT 'user',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS doctors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            position TEXT,
+            experience TEXT,
+            description TEXT,
+            photo TEXT,
+            specialization TEXT,
+            is_active INTEGER DEFAULT 1
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS services (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            icon TEXT,
+            category TEXT,
+            price REAL,
+            old_price REAL,
+            is_popular INTEGER DEFAULT 0,
+            for_kids INTEGER DEFAULT 1
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS promotions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            discount INTEGER,
+            old_price REAL,
+            new_price REAL,
+            badge TEXT,
+            color TEXT,
+            icon TEXT,
+            end_date TEXT,
+            is_active INTEGER DEFAULT 1
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS gallery (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            src TEXT NOT NULL,
+            alt TEXT,
+            category TEXT DEFAULT 'clinic',
+            sort_order INTEGER DEFAULT 0
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            doctor_id INTEGER,
+            rating INTEGER,
+            text TEXT,
+            date TEXT,
+            verified INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS appointments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            doctor_id INTEGER,
+            service_id INTEGER,
+            child_name TEXT,
+            child_age INTEGER,
+            appointment_date TEXT,
+            appointment_time TEXT,
+            comment TEXT,
+            status TEXT DEFAULT 'pending',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS children_profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            name TEXT NOT NULL,
+            birth_date TEXT,
+            medical_card TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS bonuses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            amount REAL,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        console.log('✅ Все таблицы созданы/проверены');
+
+        // Добавляем тестового админа если нет
+        db.get('SELECT id FROM users WHERE role = ?', ['admin'], async (err, row) => {
+            if (!row) {
+                const hashedPassword = await bcrypt.hash('admin123', 10);
+                db.run('INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
+                    ['Администратор', 'admin@zubov.ru', '+73532788888', hashedPassword, 'admin']);
+                console.log('✅ Админ создан: admin@zubov.ru / admin123');
+            }
+        });
+
+        // Добавляем тестовых врачей если таблица пустая
+        db.get('SELECT COUNT(*) as count FROM doctors', [], (err, row) => {
+            if (row && row.count === 0) {
+                db.run(`INSERT INTO doctors (name, position, experience, description, specialization, is_active) VALUES 
+                    ('Иванова Екатерина', 'Детский стоматолог', '12 лет', 'Опытный детский стоматолог', 'Терапия', 1),
+                    ('Петров Алексей', 'Детский ортодонт', '8 лет', 'Специалист по исправлению прикуса', 'Ортодонтия', 1),
+                    ('Смирнова Ольга', 'Детский хирург', '15 лет', 'Хирург с большим опытом', 'Хирургия', 1)`);
+                console.log('✅ Тестовые врачи добавлены');
+            }
+        });
+
+        // Добавляем тестовые услуги
+        db.get('SELECT COUNT(*) as count FROM services', [], (err, row) => {
+            if (row && row.count === 0) {
+                db.run(`INSERT INTO services (title, description, icon, category, price, old_price, is_popular, for_kids) VALUES 
+                    ('Осмотр и консультация', 'Первичный осмотр', '🔍', 'Диагностика', 0, 500, 1, 1),
+                    ('Лечение кариеса молочного зуба', 'Лечение кариеса', '🦷', 'Терапия', 3500, 4000, 1, 1),
+                    ('Лечение кариеса постоянного зуба', 'Лечение кариеса', '🦷', 'Терапия', 4500, 5000, 0, 1),
+                    ('Герметизация фиссур', 'Защита от кариеса', '🛡️', 'Профилактика', 2500, 3000, 1, 1),
+                    ('Лечение под седацией', 'Лечение во сне', '😴', 'Терапия', 8000, 9000, 1, 1),
+                    ('Профессиональная чистка', 'Чистка зубов', '✨', 'Гигиена', 3000, 3500, 0, 1),
+                    ('Удаление молочного зуба', 'Удаление зуба', '🏥', 'Хирургия', 2500, 3000, 0, 1),
+                    ('Удаление постоянного зуба', 'Удаление зуба', '🏥', 'Хирургия', 4000, 4500, 0, 1)`);
+                console.log('✅ Тестовые услуги добавлены');
+            }
+        });
+
+        // Добавляем тестовые акции
+        db.get('SELECT COUNT(*) as count FROM promotions', [], (err, row) => {
+            if (row && row.count === 0) {
+                db.run(`INSERT INTO promotions (title, description, discount, old_price, new_price, badge, color, icon, end_date, is_active) VALUES 
+                    ('Скидка 37% на лечение 3-х зубов', 'При лечении трёх зубов одновременно', 37, 13500, 8500, 'Выгодно', '#FF4757', '🔥', '2026-12-31', 1),
+                    ('Первый визит - подарок', 'Каждому новому пациенту', 100, 500, 0, 'Подарок', '#2ED573', '🎁', '2026-12-31', 1)`);
+                console.log('✅ Тестовые акции добавлены');
+            }
+        });
+    });
+}
 
 // Middleware
 app.use(cors({
