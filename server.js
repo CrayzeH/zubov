@@ -17,17 +17,13 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.set('trust proxy', 1);
 
 // Используем переменные окружения
-const DB_PATH = process.env.DB_PATH || '/tmp/drz.db';
-
-console.log('📁 БД:', DB_PATH);
-
-// База данных
+const DB_PATH = process.env.DB_PATH || './drz.db';
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
         process.exit(1);
     } else {
-        console.log('✅ Подключено к SQLite базе данных');
+        console.log('✅ Подключено к SQLite базе данных:', DB_PATH);
     }
 });
 
