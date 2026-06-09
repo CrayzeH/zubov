@@ -17,14 +17,134 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 app.set('trust proxy', 1);
 
+// Используем /tmp для баз данных (доступно для записи на Timeweb Cloud)
+const DB_PATH = '/tmp/drz.db';
+const SESSIONS_DB_PATH = '/tmp/sessions.db';
+
 // База данных
-const db = new sqlite3.Database('./drz.db', (err) => {
+const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
+        process.exit(1);
     } else {
-        console.log('✅ Подключено к SQLite базе данных');
+        console.log('✅ Подключено к SQLite базе данных:', DB_PATH);
+        initDatabase();
     }
 });
+
+// Функция инициализации всех таблиц
+function initDatabase() {
+    const tables = [
+        `CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            phone TEXT,
+            password TEXT NOT NULL,
+            role TEXT DEFAULT 'user',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`,
+        `CREATE TABLE IF NOT EXISTS doctors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            position TEXT,
+            experience TEXT,
+            description TEXT,
+            photo TEXT,
+            specialization TEXT,
+            is_active INTEGER DEFAULT 1
+        )`,
+        `CREATE TABLE IF NOT EXISTS services (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            icon TEXT,
+            category TEXT,
+            price REAL,
+            old_price REAL,
+            is_popular INTEGER DEFAULT 0,
+            for_kids INTEGER DEFAULT 1
+        )`,
+        `CREATE TABLE IF NOT EXISTS promotions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            discount INTEGER,
+            old_price REAL,
+            new_price REAL,
+            badge TEXT,
+            color TEXT,
+            icon TEXT,
+            end_date TEXT,
+            is_active INTEGER DEFAULT 1
+        )`,
+        `CREATE TABLE IF NOT EXISTS gallery (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            src TEXT NOT NULL,
+            alt TEXT,
+            category TEXT DEFAULT 'clinic',
+            sort_order INTEGER DEFAULT 0
+        )`,
+        `CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            doctor_id INTEGER,
+            rating INTEGER,
+            text TEXT,
+            date TEXT,
+            verified INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`,
+        `CREATE TABLE IF NOT EXISTS appointments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            doctor_id INTEGER,
+            service_id INTEGER,
+            child_name TEXT,
+            child_age INTEGER,
+            appointment_date TEXT,
+            appointment_time TEXT,
+            comment TEXT,
+            status TEXT DEFAULT 'pending',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`,
+        `CREATE TABLE IF NOT EXISTS children_profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            name TEXT NOT NULL,
+            birth_date TEXT,
+            medical_card TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`,
+        `CREATE TABLE IF NOT EXISTS bonuses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            amount REAL,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`
+    ];
+
+    db.serialize(() => {
+        tables.forEach(sql => {
+            db.run(sql, (err) => {
+                if (err) {
+                    console.error('Ошибка создания таблицы:', err);
+                }
+            });
+        });
+        console.log('✅ Все таблицы проверены и готовы');
+
+        // Запускаем сервер только после инициализации БД
+        startServer();
+    });
+}
+
+function startServer() {
+    app.listen(PORT, HOST, () => {
+        console.log(`🚀 Сервер запущен на http://${HOST}:${PORT}`);
+    });
+}
 
 // Middleware
 app.use(cors({
@@ -38,11 +158,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Сессии
 app.use(session({
     store: new SQLiteStore({
-        db: 'sessions.db',
+        db: SESSIONS_DB_PATH,
         table: 'sessions',
         concurrentDB: true
     }),
-    secret: 'detskaya-stomatologiya-secret-key-2026',
+    secret: process.env.SESSION_SECRET || 'detskaya-stomatologiya-secret-key-2026',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -106,7 +226,7 @@ function safeAssetFileName(fileName, contentType) {
 
 // ========== GIGACHAT AI ==========
 const agent = new https.Agent({ rejectUnauthorized: false });
-const AUTHORIZATION_KEY = "MDE5ZDVlYTktMjRmNy03NDZlLWEzMjktZWI4ODg0ZWQwNGFiOmUyMTM4YWMzLTRkYzItNDEwYy1hOTAyLTk0MTI0NTBhZWY0Yg==";
+const AUTHORIZATION_KEY = process.env.GIGACHAT_AUTH_KEY || "MDE5ZDVlYTktMjRmNy03NDZlLWEzMjktZWI4ODg0ZWQwNGFiOmUyMTM4YWMzLTRkYzItNDEwYy1hOTAyLTk0MTI0NTBhZWY0Yg==";
 const GIGACHAT_AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
 const GIGACHAT_API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions";
 
@@ -1000,9 +1120,4 @@ app.get('/admin', (req, res) => {
 // 404
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
-});
-
-// Запуск
-app.listen(PORT, HOST, () => {
-    console.log(`Server started on http://${HOST}:${PORT}`);
 });
