@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Доктор Зубов - Детская стоматология</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .hero-features {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .promo-banner {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
+        }
+        .promo-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+            color: white;
+        }
+        .promo-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .promo-text h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        .promo-icon i {
+            font-size: 120px;
+            opacity: 0.8;
+        }
+        .features {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .feature-card {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3286f4 0%, #3b55da 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .feature-icon i {
+            font-size: 32px;
+            color: white;
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+            color: #3270ce;
+            font-size: 18px;
+        }
+        .loading-spinner i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .service-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3270ce;
+            margin-bottom: 20px;
+        }
+        /* Иконка пользователя */
+        .user-icon-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: #3270ce;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+            text-decoration: none;
+        }
+        .user-icon-link:hover {
+            background: #2558a8;
+            transform: scale(1.05);
+            color: white;
+        }
+        .user-icon-link i {
+            font-size: 20px;
+        }
+        @media (max-width: 768px) {
+            .hero-features {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .promo-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .promo-icon i {
+                font-size: 80px;
+            }
+            .user-icon-link {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                margin-left: 10px;
+            }
+        }
+        .nav-menu.active {
+            display: flex;
+        }
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            display: none;
+            color: #333;
+        }
+        @media (max-width: 992px) {
+            .menu-toggle {
+                display: block;
+            }
+            .nav-menu {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 20px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+            .nav-menu a, .nav-menu .btn {
+                margin: 8px 0;
+                width: 100%;
+                text-align: center;
+            }
+            .navbar {
+                flex-wrap: wrap;
+            }
+        }
+        .service-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .service-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #3286f4 0%, #3b55da 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .service-icon i {
+            font-size: 28px;
+            color: white;
+        }
+        .service-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .service-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .service-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #3270ce;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .doctor-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        .doctor-card:hover {
+            transform: translateY(-5px);
+        }
+        .doctor-photo {
+            background: #f0f4fc;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .doctor-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        }
+        .photo-placeholder i {
+            font-size: 80px;
+            color: #3270ce;
+        }
+        .doctor-info {
+            padding: 20px;
+        }
+        .doctor-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .doctor-position {
+            color: #3270ce;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .doctor-experience {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .doctor-specialization {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .specialization-tag {
+            background: #eef2ff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #3270ce;
+        }
+        .review-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .review-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .review-avatar i {
+            font-size: 50px;
+            color: #3270ce;
+        }
+        .review-name {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .review-rating {
+            color: #ffc107;
+            margin-bottom: 5px;
+        }
+        .review-date {
+            font-size: 12px;
+            color: #999;
+        }
+        .review-text {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .review-verified {
+            font-size: 12px;
+            color: #28a745;
+        }
+        .text-center {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .services-grid, .doctors-grid, .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .stats {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b55da 100%);
+            color: white;
+            padding: 60px 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .stat-text {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .footer {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 50px 0 20px;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+        .footer-text {
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+        .footer-social a {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .footer-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .footer-links, .footer-contacts {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-links li, .footer-contacts li {
+            margin-bottom: 10px;
+        }
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+        }
+        .footer-contacts li {
+            color: #aaa;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .footer-bonus {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ff9800;
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #888;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #ff9800;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #3270ce;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #2558a8;
+            transform: translateY(-2px);
+        }
+        .btn-small {
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+        .btn-large {
+            padding: 14px 32px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #3270ce;
+            text-decoration: none;
+        }
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #3270ce;
+        }
+        .hero {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #e8f0fe 0%, #d4e2fc 100%);
+        }
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+        .hero-title {
+            font-size: 44px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #1e3a8a;
+        }
+        .hero-subtitle {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .hero-image img {
+            max-width: 100%;
+            border-radius: 30px;
+        }
+        .services, .doctors, .reviews {
+            padding: 80px 0;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .section-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+        }
+        .section-subtitle {
+            font-size: 18px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero-title {
+                font-size: 32px;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+            .section-title {
+                font-size: 28px;
+            }
+        }
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            z-index: 10001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            animation: fadeInOut 3s ease-in-out;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+        /* ========== ХЕДЕР И НАВИГАЦИЯ ========== */
+.header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    color: #3270ce;
+    text-decoration: none;
+}
+
+.logo i {
+    font-size: 28px;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+    font-size: 15px;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    color: #3270ce;
+}
+
+/* ========== ИКОНКА ПОЛЬЗОВАТЕЛЯ ========== */
+.user-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: #3270ce;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+.user-icon-link:hover {
+    background: #2558a8;
+    transform: scale(1.05);
+    color: white;
+}
+
+.user-icon-link i {
+    font-size: 20px;
+}
+
+/* Кнопка "Записаться" в хедере (если нужна) */
+.btn-header {
+    background: #ff9800;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-header:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+}
+
+/* ========== МОБИЛЬНОЕ МЕНЮ ========== */
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+    color: #333;
+}
+
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        z-index: 1000;
+        gap: 15px;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .user-icon-link {
+        margin-left: 0;
+        width: 100%;
+        border-radius: 40px;
+        background: #3270ce;
+    }
+
+    .navbar {
+        flex-wrap: wrap;
+    }
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 768px) {
+    .user-icon-link {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-left: 10px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .logo i {
+        font-size: 24px;
+    }
+}
+        /* ========== ФИКС МОБИЛЬНОГО МЕНЮ (добавить в конец style) ========== */
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+        z-index: 1001;
+        position: relative;
+    }
+
+    /* Оверлей */
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+
+    .menu-overlay.active {
+        display: block;
+    }
+
+    /* Меню - выезжает справа */
+    .nav-menu {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        left: auto !important;
+        width: 80% !important;
+        max-width: 320px !important;
+        height: 100vh !important;
+        background: white !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 80px 25px 30px !important;
+        margin: 0 !important;
+        gap: 15px !important;
+        z-index: 999 !important;
+        transition: right 0.3s ease !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: flex !important;
+        box-shadow: -2px 0 15px rgba(0,0,0,0.1) !important;
+    }
+
+    .nav-menu.active {
+        right: 0 !important;
+        display: flex !important;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+        border-radius: 12px !important;
+    }
+
+    .user-icon-link {
+        margin-left: 0 !important;
+        width: 100% !important;
+        border-radius: 12px !important;
+        padding: 12px 20px !important;
+        justify-content: center !important;
+    }
+
+    /* Блокируем прокрутку body */
+    body.menu-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .navbar {
+        flex-wrap: nowrap !important;
+    }
+}
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="container">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-smile"></i>
+                <span>Доктор Зубов</span>
+            </a>
+
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Главная</a>
+                <a href="/services" class="nav-link">Услуги</a>
+                <a href="/price" class="nav-link">Цены</a>
+                <a href="/doctors" class="nav-link">Врачи</a>
+                <a href="/hot_sales" class="nav-link">Акции</a>
+                <a href="/about" class="nav-link">О нас</a>
+                <a href="/contacts" class="nav-link">Контакты</a>
+                <a href="/appointment" class="btn-header">Записаться</a>
+                <!-- ИКОНКА ПОЛЬЗОВАТЕЛЯ -->
+                <a href="/login" id="userIconLink" class="user-icon-link">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <i class="fas fa-heart"></i> Детская стоматология с заботой
+                </div>
+                <h1 class="hero-title">Здоровые улыбки<br>наших детей — наша радость!</h1>
+                <p class="hero-subtitle">Безболезненное лечение в игровой форме. Опытные детские стоматологи. Подарки и сюрпризы каждому маленькому пациенту.</p>
+                <div class="hero-buttons">
+                    <a href="/appointment" class="btn btn-primary">Записаться на прием</a>
+                    <a href="/about" class="btn btn-secondary">О клинике</a>
+                </div>
+                <div class="hero-features">
+                    <div class="feature">
+                        <i class="fas fa-child"></i>
+                        <span>Игровая форма</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-bed"></i>
+                        <span>Лечение во сне</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-gift"></i>
+                        <span>Подарки детям</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="assets/top.png" alt="Счастливый ребенок у стоматолога" onerror="this.src='https://via.placeholder.com/500x400?text=Happy+Child'">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="services">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Популярные услуги</h2>
+            <p class="section-subtitle">Заботимся о детских улыбках с любовью и профессионализмом</p>
+        </div>
+        <div class="services-grid" id="servicesContainer">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner"></i><br>
+                Загрузка услуг...
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="/services" class="btn btn-secondary btn-large">Все услуги</a>
+        </div>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">35+</div>
+                <div class="stat-text">лет заботы о детях</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="patientsCount">15000+</div>
+                <div class="stat-text">счастливых пациентов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="doctorsCount">15+</div>
+                <div class="stat-text">детских специалистов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-text">безболезненное лечение</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="promo-banner">
+    <div class="container">
+        <div class="promo-content" id="promoBanner">
+            <div class="promo-text">
+                <span class="promo-tag">🔥 Горячая акция</span>
+                <h2>Лечение 3-х зубов со скидкой 37%</h2>
+                <p>Только до 15 мая. Успейте записаться по выгодной цене!</p>
+                <a href="/appointment?promo=1" class="btn btn-primary">Записаться</a>
+            </div>
+            <div class="promo-icon">
+                <i class="fas fa-gift"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="doctors">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Наши детские врачи</h2>
+            <p class="section-subtitle">Профессионалы, которые любят детей и свою работу</p>
+        </div>
+        <div class="doctors-grid" id="doctorsContainer">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner"></i><br>
+                Загрузка врачей...
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="/doctors" class="btn btn-secondary btn-large">Все врачи</a>
+        </div>
+    </div>
+</section>
+
+<section class="reviews">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Отзывы родителей</h2>
+            <p class="section-subtitle">Что говорят о нас наши маленькие пациенты и их родители</p>
+        </div>
+        <div class="reviews-grid" id="reviewsContainer">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner"></i><br>
+                Загрузка отзывов...
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="/reviews" class="btn btn-secondary btn-large">Все отзывы</a>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h3>Игровая форма</h3>
+                <p>Лечение проходит как игра, ребенок не боится и чувствует себя комфортно</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tv"></i>
+                </div>
+                <h3>Мультфильмы во время лечения</h3>
+                <p>Каждый кабинет оснащен экраном с любимыми мультфильмами</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <h3>Подарки после приема</h3>
+                <p>Каждый маленький пациент получает сюрприз после лечения</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-hand-sparkles"></i>
+                </div>
+                <h3>Безболезненно</h3>
+                <p>Современные методы обезболивания и седация для комфорта ребенка</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <a href="/" class="footer-logo">
+                    <i class="fas fa-smile"></i>
+                    <span>Доктор Зубов</span>
+                </a>
+                <p class="footer-text">Детская стоматология с 1991 года. Лечим с любовью и заботой о каждом маленьком пациенте.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-vk"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Для детей</h3>
+                <ul class="footer-links">
+                    <li><a href="/services">Лечение кариеса</a></li>
+                    <li><a href="/services">Герметизация фиссур</a></li>
+                    <li><a href="/services">Исправление прикуса</a></li>
+                    <li><a href="/services">Лечение под седацией</a></li>
+                    <li><a href="/services">Профилактика</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Контакты</h3>
+                <ul class="footer-contacts">
+                    <li><i class="fas fa-phone"></i> +7 (3532) 78-88-88</li>
+                    <li><i class="fas fa-envelope"></i> deti@drzubov.ru</li>
+                    <li><i class="fas fa-clock"></i> Пн-Пт: 8:00-20:00<br>Сб: 9:00-18:00<br>Вс: 9:00-16:00</li>
+                    <li><i class="fas fa-map-marker-alt"></i> г. Оренбург, ул. Сергея Лазо, 14</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Запись на прием</h3>
+                <p class="footer-text">Запишитесь на консультацию онлайн или по телефону</p>
+                <a href="/appointment" class="btn btn-primary btn-small">Записаться</a>
+                <div class="footer-bonus">
+                    <i class="fas fa-gift"></i>
+                    <span>При первом визите — подарок!</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Клиника «Доктор Зубов». Детская стоматология. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// ========== РАБОТА С АВТОРИЗАЦИЕЙ (через API бэкенда) ==========
+
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/auth/check', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        return data.isAuthenticated === true;
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error);
+        return false;
+    }
+}
+
+async function getUserInfo() {
+    try {
+        const response = await fetch('/api/auth/user', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.user;
+        }
+        return null;
+    } catch (error) {
+        console.error('Ошибка получения данных пользователя:', error);
+        return null;
+    }
+}
+
+// Обновление иконки пользователя
+async function updateUserIcon() {
+    const userIconLink = document.getElementById('userIconLink');
+    if (!userIconLink) return;
+
+    const isAuthenticated = await checkAuthStatus();
+
+    if (isAuthenticated) {
+        userIconLink.href = '/profile';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user');
+            icon.classList.add('fa-user-circle');
+        }
+        // Получаем имя пользователя для tooltip
+        const user = await getUserInfo();
+        if (user) {
+            userIconLink.title = user.name;
+        } else {
+            userIconLink.title = 'Личный кабинет';
+        }
+    } else {
+        userIconLink.href = '/login';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user-circle');
+            icon.classList.add('fa-user');
+        }
+        userIconLink.title = 'Войти';
+    }
+}
+
+// ========== ЗАГРУЗКА ДАННЫХ С API ==========
+
+async function loadPopularServices() {
+    const container = document.getElementById('servicesContainer');
+    if (!container) return;
+
+    try {
+        const response = await fetch('/api/services');
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        const services = await response.json();
+        // Берем первые 4 популярные услуги
+        const popularServices = services.filter(s => s.is_popular === 1).slice(0, 4);
+
+        if (popularServices.length === 0) {
+            // Если нет помеченных популярных, берем первые 4
+            container.innerHTML = services.slice(0, 4).map(service => `
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas ${service.icon || 'fa-tooth'}"></i></div>
+                    <h3 class="service-title">${service.title}</h3>
+                    <p class="service-description">${service.description || 'Профессиональная стоматологическая помощь'}</p>
+                    <div class="service-price">от ${service.price.toLocaleString()} ₽</div>
+                    <a href="/appointment?service=${service.id}" class="service-link">Записаться <i class="fas fa-arrow-right"></i></a>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = popularServices.map(service => `
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas ${service.icon || 'fa-tooth'}"></i></div>
+                    <h3 class="service-title">${service.title}</h3>
+                    <p class="service-description">${service.description || 'Профессиональная стоматологическая помощь'}</p>
+                    <div class="service-price">от ${service.price.toLocaleString()} ₽</div>
+                    <a href="/appointment?service=${service.id}" class="service-link">Записаться <i class="fas fa-arrow-right"></i></a>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки услуг:', error);
+        container.innerHTML = '<div class="loading-spinner">Ошибка загрузки услуг</div>';
+    }
+}
+
+async function loadDoctors() {
+    const container = document.getElementById('doctorsContainer');
+    if (!container) return;
+
+    try {
+        const response = await fetch('/api/doctors');
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        const data = await response.json();
+        const doctors = data.doctors.slice(0, 4);
+
+        container.innerHTML = doctors.map(doctor => {
+            let specializations = [];
+            if (doctor.specialization) {
+                specializations = doctor.specialization.split(',').map(s => s.trim()).slice(0, 2);
+            }
+            return `
+                <div class="doctor-card">
+                    <div class="doctor-photo">
+                        ${doctor.photo ?
+                            `<img src="assets/${doctor.photo}" alt="${doctor.name}" onerror="this.parentElement.innerHTML='<div class=\'photo-placeholder\'><i class=\'fas fa-user-md\'></i></div>';">` :
+                            `<div class="photo-placeholder"><i class="fas fa-user-md"></i></div>`
+                        }
+                    </div>
+                    <div class="doctor-info">
+                        <h3 class="doctor-name">${doctor.name}</h3>
+                        <p class="doctor-position">${doctor.position}</p>
+                        <p class="doctor-experience">Стаж: ${doctor.experience}</p>
+                        <div class="doctor-specialization">
+                            ${specializations.map(spec => `<span class="specialization-tag">${spec}</span>`).join('')}
+                        </div>
+                        <a href="/appointment?doctor=${doctor.id}" class="btn btn-primary btn-small" style="margin-top: 14px;">Записаться</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const doctorsCountEl = document.getElementById('doctorsCount');
+        if (doctorsCountEl) doctorsCountEl.textContent = data.doctors.length + '+';
+    } catch (error) {
+        console.error('Ошибка загрузки врачей:', error);
+        container.innerHTML = '<div class="loading-spinner">Ошибка загрузки врачей</div>';
+    }
+}
+
+async function loadReviews() {
+    const container = document.getElementById('reviewsContainer');
+    if (!container) return;
+
+    try {
+        const response = await fetch('/api/reviews');
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        const data = await response.json();
+        const reviews = data.reviews.slice(0, 4);
+
+        container.innerHTML = reviews.map(review => `
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar"><i class="fas fa-user-circle"></i></div>
+                    <div class="review-info">
+                        <h4 class="review-name">${review.user_name || 'Аноним'}</h4>
+                        <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div>
+                        <span class="review-date">${review.date || review.created_at?.split('T')[0] || ''}</span>
+                    </div>
+                </div>
+                <p class="review-text">${review.text}</p>
+                ${review.verified ? '<span class="review-verified"><i class="fas fa-check-circle"></i> Подтверждённый отзыв</span>' : ''}
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Ошибка загрузки отзывов:', error);
+        container.innerHTML = '<div class="loading-spinner">Ошибка загрузки отзывов</div>';
+    }
+}
+
+async function loadPromotions() {
+    try {
+        const response = await fetch('/api/promotions');
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        const data = await response.json();
+        if (data.promotions && data.promotions.length > 0) {
+            const promo = data.promotions[0];
+            const promoBanner = document.getElementById('promoBanner');
+            if (promoBanner) {
+                promoBanner.innerHTML = `
+                    <div class="promo-text">
+                        <span class="promo-tag">${promo.badge || '🔥 Горячая акция'}</span>
+                        <h2>${promo.title}</h2>
+                        <p>${promo.description}</p>
+                        <a href="/appointment?promo=${promo.id}" class="btn btn-primary">Записаться</a>
+                    </div>
+                    <div class="promo-icon">
+                        <i class="fas ${promo.icon || 'fa-gift'}"></i>
+                    </div>
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки акций:', error);
+    }
+}
+
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
+document.addEventListener('DOMContentLoaded', async function() {
+    // Загружаем данные
+    loadPopularServices();
+    loadDoctors();
+    loadReviews();
+    loadPromotions();
+
+    // Обновляем иконку пользователя
+    await updateUserIcon();
+
+    // Мобильное меню
+    // ========== МОБИЛЬНОЕ МЕНЮ ==========
+(function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
+    if (!menuToggle || !navMenu) return;
+
+    const body = document.body;
+
+    // Создаем оверлей
+    let overlay = document.querySelector('.menu-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'menu-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    function openMenu() {
+        navMenu.classList.add('active');
+        overlay.classList.add('active');
+        body.classList.add('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        }
+    }
+
+    function closeMenu() {
+        navMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    }
+
+    menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (navMenu.classList.contains('active')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+})();
+});
+</script>
+<script src="assets/chat-widget.js"></script>
+</body>
+</html>

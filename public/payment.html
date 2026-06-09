@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оплата - Доктор Зубов Детская стоматология</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    <style>
+        .payment-page {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .payment-text h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .payment-text > p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .payment-methods-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .payment-method-item {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .payment-method-item:hover {
+            transform: translateX(5px);
+        }
+
+        .payment-method-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3286f4 0%, #3b55da 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .payment-method-icon i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .payment-method-details h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .payment-method-details p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .payment-info-box {
+            background: #e9f3ff;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .payment-info-box h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #3270ce;
+        }
+
+        .payment-info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .payment-info-box li {
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .payment-info-box li:before {
+            content: "✓";
+            color: #3270ce;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .payment-image {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .payment-image i {
+            font-size: 120px;
+            color: #3270ce;
+            margin-bottom: 20px;
+        }
+
+        .payment-image h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .payment-image p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .cards-section {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .cards-section h3 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .cards-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .card-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            min-width: 120px;
+            transition: transform 0.3s ease;
+        }
+
+        .card-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-item i {
+            font-size: 48px;
+            color: #3270ce;
+            margin-bottom: 10px;
+        }
+
+        .card-item span {
+            display: block;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .installment-section {
+            background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .installment-text {
+            color: white;
+        }
+
+        .installment-text h3 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .installment-text p {
+            opacity: 0.9;
+        }
+
+        .installment-btn {
+            background: white;
+            color: #ff6b00;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .installment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .documents-section {
+            margin-top: 40px;
+        }
+
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .document-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .document-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .document-card i {
+            font-size: 48px;
+            color: #3270ce;
+            margin-bottom: 15px;
+        }
+
+        .document-card h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .document-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 992px) {
+            .payment-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .installment-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cards-grid {
+                gap: 20px;
+            }
+        }
+        /* ========== ХЕДЕР И НАВИГАЦИЯ ========== */
+.header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    color: #3270ce;
+    text-decoration: none;
+}
+
+.logo i {
+    font-size: 28px;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+    font-size: 15px;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    color: #3270ce;
+}
+
+/* ========== ИКОНКА ПОЛЬЗОВАТЕЛЯ ========== */
+.user-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: #3270ce;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+.user-icon-link:hover {
+    background: #2558a8;
+    transform: scale(1.05);
+    color: white;
+}
+
+.user-icon-link i {
+    font-size: 20px;
+}
+
+/* Кнопка "Записаться" в хедере (если нужна) */
+.btn-header {
+    background: #ff9800;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-header:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+}
+
+/* ========== МОБИЛЬНОЕ МЕНЮ ========== */
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+    color: #333;
+}
+
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        z-index: 1000;
+        gap: 15px;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .user-icon-link {
+        margin-left: 0;
+        width: 100%;
+        border-radius: 40px;
+        background: #3270ce;
+    }
+
+    .navbar {
+        flex-wrap: wrap;
+    }
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 768px) {
+    .user-icon-link {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-left: 10px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .logo i {
+        font-size: 24px;
+    }
+}
+        /* ========== ФИКС МОБИЛЬНОГО МЕНЮ (добавить в конец style) ========== */
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+        z-index: 1001;
+        position: relative;
+    }
+
+    /* Оверлей */
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+
+    .menu-overlay.active {
+        display: block;
+    }
+
+    /* Меню - выезжает справа */
+    .nav-menu {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        left: auto !important;
+        width: 80% !important;
+        max-width: 320px !important;
+        height: 100vh !important;
+        background: white !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 80px 25px 30px !important;
+        margin: 0 !important;
+        gap: 15px !important;
+        z-index: 999 !important;
+        transition: right 0.3s ease !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: flex !important;
+        box-shadow: -2px 0 15px rgba(0,0,0,0.1) !important;
+    }
+
+    .nav-menu.active {
+        right: 0 !important;
+        display: flex !important;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+        border-radius: 12px !important;
+    }
+
+    .user-icon-link {
+        margin-left: 0 !important;
+        width: 100% !important;
+        border-radius: 12px !important;
+        padding: 12px 20px !important;
+        justify-content: center !important;
+    }
+
+    /* Блокируем прокрутку body */
+    body.menu-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .navbar {
+        flex-wrap: nowrap !important;
+    }
+}
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="container">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-smile"></i>
+                <span>Доктор Зубов</span>
+            </a>
+
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Главная</a>
+                <a href="/services" class="nav-link">Услуги</a>
+                <a href="/price" class="nav-link">Цены</a>
+                <a href="/doctors" class="nav-link">Врачи</a>
+                <a href="/hot_sales" class="nav-link">Акции</a>
+                <a href="/about" class="nav-link">О нас</a>
+                <a href="/contacts" class="nav-link">Контакты</a>
+                <a href="/appointment" class="btn-header">Записаться</a>
+                <!-- ИКОНКА ПОЛЬЗОВАТЕЛЯ -->
+                <a href="/login" id="userIconLink" class="user-icon-link">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </div>
+</header>
+
+<section class="page-hero">
+    <div class="container">
+        <div class="page-hero-content">
+            <h1 class="page-hero-title">Способы оплаты</h1>
+            <p class="page-hero-subtitle">Удобные и безопасные варианты оплаты услуг</p>
+        </div>
+    </div>
+</section>
+
+<section class="payment-page">
+    <div class="container">
+        <div class="payment-grid">
+            <div class="payment-text">
+                <h2>Оплата услуг</h2>
+                <p>Оплату за оказанные услуги возможно произвести несколькими способами. Выберите наиболее удобный для вас вариант.</p>
+
+                <div class="payment-methods-list">
+                    <div class="payment-method-item">
+                        <div class="payment-method-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="payment-method-details">
+                            <h3>Наличными</h3>
+                            <p>Оплата через контрольно-кассовый аппарат организации в кассе клиники</p>
+                        </div>
+                    </div>
+
+                    <div class="payment-method-item">
+                        <div class="payment-method-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="payment-method-details">
+                            <h3>Банковской картой</h3>
+                            <p>VISA, Mastercard, МИР через терминал в клинике или онлайн</p>
+                        </div>
+                    </div>
+
+                    <div class="payment-method-item">
+                        <div class="payment-method-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="payment-method-details">
+                            <h3>Безналичный расчет</h3>
+                            <p>Перевод на расчетный счет организации для юридических лиц</p>
+                        </div>
+                    </div>
+
+                    <div class="payment-method-item">
+                        <div class="payment-method-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="payment-method-details">
+                            <h3>Мобильные платежи</h3>
+                            <p>Apple Pay, Google Pay, Samsung Pay</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-info-box">
+                    <h3>Важная информация</h3>
+                    <ul>
+                        <li>Вы получаете полный пакет документов: договор, чек, квитанцию об оплате</li>
+                        <li>Возможна оплата в рассрочку по индивидуальному плану</li>
+                        <li>Прием платежей осуществляется в российских рублях</li>
+                        <li>Все платежи защищены и соответствуют требованиям безопасности</li>
+                        <li>Для юридических лиц предоставляются все необходимые закрывающие документы</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="payment-image">
+                <i class="fas fa-credit-card"></i>
+                <h3>Безопасная оплата</h3>
+                <p>Все операции с банковскими картами проводятся в соответствии с требованиями международных платежных систем. Данные передаются в защищенном режиме.</p>
+                <div style="margin-top: 20px;">
+                    <i class="fas fa-lock" style="font-size: 24px; color: #28a745;"></i>
+                    <span style="margin-left: 10px; color: #666;">Безопасное соединение</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-section">
+            <h3>Принимаем к оплате</h3>
+            <div class="cards-grid">
+                <div class="card-item">
+                    <i class="fab fa-cc-visa"></i>
+                    <span>VISA</span>
+                </div>
+                <div class="card-item">
+                    <i class="fab fa-cc-mastercard"></i>
+                    <span>Mastercard</span>
+                </div>
+                <div class="card-item">
+                    <i class="fas fa-credit-card"></i>
+                    <span>МИР</span>
+                </div>
+                <div class="card-item">
+                    <i class="fab fa-apple-pay"></i>
+                    <span>Apple Pay</span>
+                </div>
+                <div class="card-item">
+                    <i class="fab fa-google-pay"></i>
+                    <span>Google Pay</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="installment-section">
+            <div class="installment-text">
+                <h3>Рассрочка платежа</h3>
+                <p>Предоставляем возможность оплаты услуг в рассрочку по индивидуальному плану без процентов</p>
+            </div>
+            <a href="contacts.html" class="installment-btn">Узнать подробнее <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="documents-section">
+            <h2 class="section-title text-center">Документы и гарантии</h2>
+            <div class="documents-grid">
+                <div class="document-card">
+                    <i class="fas fa-file-contract"></i>
+                    <h4>Договор на оказание услуг</h4>
+                    <p>Заключаем договор с каждым пациентом перед началом лечения</p>
+                </div>
+                <div class="document-card">
+                    <i class="fas fa-receipt"></i>
+                    <h4>Кассовый чек</h4>
+                    <p>Предоставляем чек об оплате установленного образца</p>
+                </div>
+                <div class="document-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>Гарантия на работу</h4>
+                    <p>Даем официальную гарантию на все виды стоматологических работ</p>
+                </div>
+                <div class="document-card">
+                    <i class="fas fa-stethoscope"></i>
+                    <h4>Гарантийное обслуживание</h4>
+                    <p>Бесплатное обслуживание в течение гарантийного срока</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="appointment-cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Записаться на прием</h2>
+            <p>Выберите удобную дату и время для визита в нашу клинику</p>
+            <a href="appointment.html" class="btn btn-primary btn-large">Записаться онлайн</a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <a href="index.html" class="footer-logo">
+                    <i class="fas fa-smile"></i>
+                    <span>Доктор Зубов</span>
+                </a>
+                <p class="footer-text">Детская стоматология с 1991 года. Лечим с любовью и заботой о каждом маленьком пациенте.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-vk"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Для детей</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">Лечение кариеса</a></li>
+                    <li><a href="services.html">Герметизация фиссур</a></li>
+                    <li><a href="services.html">Исправление прикуса</a></li>
+                    <li><a href="services.html">Лечение под седацией</a></li>
+                    <li><a href="services.html">Профилактика</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Контакты</h3>
+                <ul class="footer-contacts">
+                    <li><i class="fas fa-phone"></i> +7 (3532) 78-88-88</li>
+                    <li><i class="fas fa-envelope"></i> deti@drzubov.ru</li>
+                    <li><i class="fas fa-clock"></i> Пн-Пт: 8:00-20:00<br>Сб: 9:00-18:00<br>Вс: 9:00-16:00</li>
+                    <li><i class="fas fa-map-marker-alt"></i> г. Оренбург, ул. Сергея Лазо, 14</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Запись на прием</h3>
+                <p class="footer-text">Запишитесь на консультацию онлайн или по телефону</p>
+                <a href="appointment.html" class="btn btn-primary btn-small">Записаться</a>
+                <div class="footer-bonus">
+                    <i class="fas fa-gift"></i>
+                    <span>При первом визите — подарок!</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Клиника «Доктор Зубов». Детская стоматология. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ========== МОБИЛЬНОЕ МЕНЮ ==========
+(function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
+    if (!menuToggle || !navMenu) return;
+
+    const body = document.body;
+
+    // Создаем оверлей
+    let overlay = document.querySelector('.menu-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'menu-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    function openMenu() {
+        navMenu.classList.add('active');
+        overlay.classList.add('active');
+        body.classList.add('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        }
+    }
+
+    function closeMenu() {
+        navMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    }
+
+    menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (navMenu.classList.contains('active')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+})();
+    });
+</script>
+<script>
+// ========== АВТОРИЗАЦИЯ И ИКОНКА ПОЛЬЗОВАТЕЛЯ ==========
+
+// Проверка авторизации через API
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/auth/check', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        return data.isAuthenticated === true;
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error);
+        return false;
+    }
+}
+
+// Получение данных пользователя
+async function getUserInfo() {
+    try {
+        const response = await fetch('/api/auth/user', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.user;
+        }
+        return null;
+    } catch (error) {
+        console.error('Ошибка получения данных пользователя:', error);
+        return null;
+    }
+}
+
+// Обновление иконки пользователя
+async function updateUserIcon() {
+    const userIconLink = document.getElementById('userIconLink');
+    if (!userIconLink) return;
+
+    const isAuthenticated = await checkAuthStatus();
+
+    if (isAuthenticated) {
+        userIconLink.href = '/profile';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user');
+            icon.classList.add('fa-user-circle');
+        }
+        const user = await getUserInfo();
+        userIconLink.title = user ? user.name : 'Личный кабинет';
+    } else {
+        userIconLink.href = '/login';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user-circle');
+            icon.classList.add('fa-user');
+        }
+        userIconLink.title = 'Войти';
+    }
+}
+
+// Активная ссылка в меню
+function setActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (linkPath === currentPath ||
+            (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+
+// Запуск при загрузке страницы
+document.addEventListener('DOMContentLoaded', async function() {
+    await updateUserIcon();
+    if (typeof initMobileMenu === 'function') initMobileMenu();
+    setActiveNavLink();
+});
+</script>
+<link rel="stylesheet" href="assets/chat-styles.css">
+<script src="assets/chat-widget.js"></script>
+</body>
+</html>

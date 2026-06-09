@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Врачи - Доктор Зубов Детская стоматология</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    <style>
+        .doctors-page {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .doctors-filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+
+        .doctor-filter-btn {
+            padding: 10px 25px;
+            background: #f0f4fc;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .doctor-filter-btn:hover {
+            background: #3270ce;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .doctor-filter-btn.active {
+            background: #3270ce;
+            color: white;
+            box-shadow: 0 4px 12px rgba(50, 112, 206, 0.3);
+        }
+
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .doctor-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .doctor-photo {
+            height: 300px;
+            background: linear-gradient(135deg, #3286f4 0%, #3b55da 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .doctor-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .doctor-photo-placeholder {
+            color: white;
+            font-size: 80px;
+        }
+
+        .doctor-info {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .doctor-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .doctor-position {
+            color: #3270ce;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .doctor-experience {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: inline-block;
+            background: #f0f4fc;
+            padding: 4px 12px;
+            border-radius: 20px;
+            align-self: flex-start;
+        }
+
+        .doctor-description {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .doctor-specialization {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .specialization-tag {
+            background: #f0f8ff;
+            color: #3270ce;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .doctor-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #3270ce;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .doctor-btn:hover {
+            background: #2659b0;
+            transform: translateY(-2px);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+            color: #3270ce;
+            font-size: 18px;
+        }
+
+        .loading-spinner i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .about-doctor {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 80px 0;
+        }
+
+        .about-doctor-content {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .about-doctor-text {
+            flex: 1;
+        }
+
+        .about-doctor-text h2 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .about-doctor-text > p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .about-doctor-image {
+            flex: 1;
+        }
+
+        .about-doctor-image img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .doctor-education {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .doctor-education h3 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #3270ce;
+            font-weight: 600;
+        }
+
+        .doctor-education ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .doctor-education li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #666;
+            font-size: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .doctor-education li:last-child {
+            border-bottom: none;
+        }
+
+        .doctor-education li:before {
+            content: "✓";
+            color: #3270ce;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .trust-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .trust-stat-item {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .trust-stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .trust-stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #3270ce;
+            margin-bottom: 10px;
+        }
+
+        .trust-stat-text {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .doctors-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-doctor-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 30px;
+            }
+
+            .doctor-education li {
+                text-align: left;
+            }
+
+            .about-doctor-text h2 {
+                font-size: 28px;
+            }
+
+            .trust-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .trust-stat-item {
+                padding: 15px;
+            }
+        }
+        /* ========== ХЕДЕР И НАВИГАЦИЯ ========== */
+.header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    color: #3270ce;
+    text-decoration: none;
+}
+
+.logo i {
+    font-size: 28px;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+    font-size: 15px;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    color: #3270ce;
+}
+
+/* ========== ИКОНКА ПОЛЬЗОВАТЕЛЯ ========== */
+.user-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: #3270ce;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+.user-icon-link:hover {
+    background: #2558a8;
+    transform: scale(1.05);
+    color: white;
+}
+
+.user-icon-link i {
+    font-size: 20px;
+}
+
+/* Кнопка "Записаться" в хедере (если нужна) */
+.btn-header {
+    background: #ff9800;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-header:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+}
+
+/* ========== МОБИЛЬНОЕ МЕНЮ ========== */
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+    color: #333;
+}
+
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        z-index: 1000;
+        gap: 15px;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .user-icon-link {
+        margin-left: 0;
+        width: 100%;
+        border-radius: 40px;
+        background: #3270ce;
+    }
+
+    .navbar {
+        flex-wrap: wrap;
+    }
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 768px) {
+    .user-icon-link {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-left: 10px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .logo i {
+        font-size: 24px;
+    }
+}
+        /* ========== ФИКС МОБИЛЬНОГО МЕНЮ (добавить в конец style) ========== */
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+        z-index: 1001;
+        position: relative;
+    }
+
+    /* Оверлей */
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+
+    .menu-overlay.active {
+        display: block;
+    }
+
+    /* Меню - выезжает справа */
+    .nav-menu {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        left: auto !important;
+        width: 80% !important;
+        max-width: 320px !important;
+        height: 100vh !important;
+        background: white !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 80px 25px 30px !important;
+        margin: 0 !important;
+        gap: 15px !important;
+        z-index: 999 !important;
+        transition: right 0.3s ease !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: flex !important;
+        box-shadow: -2px 0 15px rgba(0,0,0,0.1) !important;
+    }
+
+    .nav-menu.active {
+        right: 0 !important;
+        display: flex !important;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+        border-radius: 12px !important;
+    }
+
+    .user-icon-link {
+        margin-left: 0 !important;
+        width: 100% !important;
+        border-radius: 12px !important;
+        padding: 12px 20px !important;
+        justify-content: center !important;
+    }
+
+    /* Блокируем прокрутку body */
+    body.menu-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .navbar {
+        flex-wrap: nowrap !important;
+    }
+}
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="container">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-smile"></i>
+                <span>Доктор Зубов</span>
+            </a>
+
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Главная</a>
+                <a href="/services" class="nav-link">Услуги</a>
+                <a href="/price" class="nav-link">Цены</a>
+                <a href="/doctors" class="nav-link">Врачи</a>
+                <a href="/hot_sales" class="nav-link">Акции</a>
+                <a href="/about" class="nav-link">О нас</a>
+                <a href="/contacts" class="nav-link">Контакты</a>
+                <a href="/appointment" class="btn-header">Записаться</a>
+                <!-- ИКОНКА ПОЛЬЗОВАТЕЛЯ -->
+                <a href="/login" id="userIconLink" class="user-icon-link">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </div>
+</header>
+
+<section class="page-hero">
+    <div class="container">
+        <div class="page-hero-content">
+            <h1 class="page-hero-title">Наши детские врачи</h1>
+            <p class="page-hero-subtitle">Профессионалы, которые любят детей и свою работу</p>
+        </div>
+    </div>
+</section>
+
+<section class="doctors-page">
+    <div class="container">
+        <div class="doctors-filters">
+            <button class="doctor-filter-btn active" data-specialization="all">Все врачи</button>
+            <button class="doctor-filter-btn" data-specialization="Терапия">Терапевты</button>
+            <button class="doctor-filter-btn" data-specialization="Хирургия">Хирурги</button>
+            <button class="doctor-filter-btn" data-specialization="Ортодонтия">Ортодонты</button>
+            <button class="doctor-filter-btn" data-specialization="Детская стоматология">Детские стоматологи</button>
+        </div>
+
+        <div class="doctors-grid" id="doctorsGrid">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner"></i><br>
+                Загрузка врачей...
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-doctor">
+    <div class="container">
+        <div class="about-doctor-content">
+            <div class="about-doctor-text">
+                <h2>Почему родители доверяют нам?</h2>
+                <p>Наши врачи проходят специальную подготовку по детской стоматологии. Мы умеем находить подход к каждому ребенку, превращая лечение в увлекательную игру.</p>
+                <p>Каждый специалист регулярно повышает квалификацию, изучает новые методики безболезненного лечения и современные материалы, безопасные для детей.</p>
+                <div class="doctor-education">
+                    <h3>Образование и повышение квалификации</h3>
+                    <ul>
+                        <li>Дипломы ведущих медицинских вузов России</li>
+                        <li>Сертификаты по детской стоматологии</li>
+                        <li>Регулярные курсы повышения квалификации</li>
+                        <li>Участие в международных конференциях</li>
+                        <li>Владение методиками лечения под седацией</li>
+                    </ul>
+                </div>
+                <div class="trust-stats" id="trustStats">
+                    <div class="trust-stat-item">
+                        <div class="trust-stat-number">35+</div>
+                        <div class="trust-stat-text">лет опыта работы с детьми</div>
+                    </div>
+                    <div class="trust-stat-item">
+                        <div class="trust-stat-number">15+</div>
+                        <div class="trust-stat-text">сертифицированных детских врачей</div>
+                    </div>
+                    <div class="trust-stat-item">
+                        <div class="trust-stat-number">100%</div>
+                        <div class="trust-stat-text">безболезненного лечения</div>
+                    </div>
+                </div>
+            </div>
+            <div class="about-doctor-image">
+                <img src="assets/topp.png" alt="Наши врачи">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="appointment-cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Записаться на прием</h2>
+            <p>Выберите удобного врача и время для визита в нашу клинику</p>
+            <a href="appointment.html" class="btn btn-primary btn-large">Записаться онлайн</a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <a href="index.html" class="footer-logo">
+                    <i class="fas fa-smile"></i>
+                    <span>Доктор Зубов</span>
+                </a>
+                <p class="footer-text">Детская стоматология с 1991 года. Лечим с любовью и заботой о каждом маленьком пациенте.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-vk"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Для детей</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">Лечение кариеса</a></li>
+                    <li><a href="services.html">Герметизация фиссур</a></li>
+                    <li><a href="services.html">Исправление прикуса</a></li>
+                    <li><a href="services.html">Лечение под седацией</a></li>
+                    <li><a href="services.html">Профилактика</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Контакты</h3>
+                <ul class="footer-contacts">
+                    <li><i class="fas fa-phone"></i> +7 (3532) 78-88-88</li>
+                    <li><i class="fas fa-envelope"></i> deti@drzubov.ru</li>
+                    <li><i class="fas fa-clock"></i> Пн-Пт: 8:00-20:00<br>Сб: 9:00-18:00<br>Вс: 9:00-16:00</li>
+                    <li><i class="fas fa-map-marker-alt"></i> г. Оренбург, ул. Сергея Лазо, 14</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Запись на прием</h3>
+                <p class="footer-text">Запишитесь на консультацию онлайн или по телефону</p>
+                <a href="appointment.html" class="btn btn-primary btn-small">Записаться</a>
+                <div class="footer-bonus">
+                    <i class="fas fa-gift"></i>
+                    <span>При первом визите — подарок!</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Клиника «Доктор Зубов». Детская стоматология. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+let allDoctors = [];
+
+async function loadDoctors() {
+    try {
+        const response = await fetch('/api/doctors');
+        if (!response.ok) throw new Error('Ошибка загрузки врачей');
+
+        const data = await response.json();
+        allDoctors = data.doctors;
+
+        const statsContainer = document.getElementById('trustStats');
+        if (statsContainer && allDoctors.length > 0) {
+            const doctorsCount = allDoctors.length;
+            statsContainer.innerHTML = `
+                <div class="trust-stat-item">
+                    <div class="trust-stat-number">35+</div>
+                    <div class="trust-stat-text">лет опыта работы с детьми</div>
+                </div>
+                <div class="trust-stat-item">
+                    <div class="trust-stat-number">${doctorsCount}+</div>
+                    <div class="trust-stat-text">сертифицированных детских врачей</div>
+                </div>
+                <div class="trust-stat-item">
+                    <div class="trust-stat-number">100%</div>
+                    <div class="trust-stat-text">безболезненного лечения</div>
+                </div>
+            `;
+        }
+
+        renderDoctors('all');
+    } catch (error) {
+        console.error('Ошибка:', error);
+        document.getElementById('doctorsGrid').innerHTML = `
+            <div class="loading-spinner" style="color: #dc3545;">
+                <i class="fas fa-exclamation-triangle"></i><br>
+                Ошибка загрузки врачей. Пожалуйста, обновите страницу.
+            </div>
+        `;
+    }
+}
+
+function renderDoctors(specialization) {
+    const container = document.getElementById('doctorsGrid');
+    if (!container) return;
+
+    let filteredDoctors = allDoctors;
+    if (specialization !== 'all') {
+        filteredDoctors = allDoctors.filter(doctor => {
+            if (!doctor.specialization) return false;
+            return doctor.specialization.includes(specialization);
+        });
+    }
+
+    if (filteredDoctors.length === 0) {
+        container.innerHTML = `
+            <div class="loading-spinner">
+                <i class="fas fa-search"></i><br>
+                Врачи не найдены
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = filteredDoctors.map(doctor => {
+        let specializations = [];
+        if (doctor.specialization) {
+            specializations = doctor.specialization.split(',').map(s => s.trim());
+        }
+
+        return `
+        <div class="doctor-card">
+            <div class="doctor-photo">
+                ${doctor.photo ?
+                    `<img src="assets/${doctor.photo}" alt="${doctor.name}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'doctor-photo-placeholder\'><i class=\'fas fa-user-md\'></i></div>';">` :
+                    `<div class="doctor-photo-placeholder"><i class="fas fa-user-md"></i></div>`
+                }
+            </div>
+            <div class="doctor-info">
+                <h3 class="doctor-name">${doctor.name}</h3>
+                <p class="doctor-position">${doctor.position}</p>
+                <span class="doctor-experience">Стаж: ${doctor.experience}</span>
+                <p class="doctor-description">${doctor.description}</p>
+                <div class="doctor-specialization">
+                    ${specializations.map(spec =>
+                        `<span class="specialization-tag">${spec}</span>`
+                    ).join('')}
+                </div>
+                <a href="appointment.html?doctor=${doctor.id}" class="doctor-btn">Записаться на прием</a>
+            </div>
+        </div>
+    `}).join('');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadDoctors();
+
+    const filterBtns = document.querySelectorAll('.doctor-filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const specialization = this.dataset.specialization;
+            renderDoctors(specialization);
+        });
+    });
+
+    // ========== МОБИЛЬНОЕ МЕНЮ ==========
+(function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
+    if (!menuToggle || !navMenu) return;
+
+    const body = document.body;
+
+    // Создаем оверлей
+    let overlay = document.querySelector('.menu-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'menu-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    function openMenu() {
+        navMenu.classList.add('active');
+        overlay.classList.add('active');
+        body.classList.add('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        }
+    }
+
+    function closeMenu() {
+        navMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    }
+
+    menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (navMenu.classList.contains('active')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+})();
+});
+</script>
+<script>
+// ========== АВТОРИЗАЦИЯ И ИКОНКА ПОЛЬЗОВАТЕЛЯ ==========
+
+// Проверка авторизации через API
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/auth/check', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        return data.isAuthenticated === true;
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error);
+        return false;
+    }
+}
+
+// Получение данных пользователя
+async function getUserInfo() {
+    try {
+        const response = await fetch('/api/auth/user', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.user;
+        }
+        return null;
+    } catch (error) {
+        console.error('Ошибка получения данных пользователя:', error);
+        return null;
+    }
+}
+
+// Обновление иконки пользователя
+async function updateUserIcon() {
+    const userIconLink = document.getElementById('userIconLink');
+    if (!userIconLink) return;
+
+    const isAuthenticated = await checkAuthStatus();
+
+    if (isAuthenticated) {
+        userIconLink.href = '/profile';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user');
+            icon.classList.add('fa-user-circle');
+        }
+        const user = await getUserInfo();
+        userIconLink.title = user ? user.name : 'Личный кабинет';
+    } else {
+        userIconLink.href = '/login';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user-circle');
+            icon.classList.add('fa-user');
+        }
+        userIconLink.title = 'Войти';
+    }
+}
+
+// Активная ссылка в меню
+function setActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (linkPath === currentPath ||
+            (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+
+// Запуск при загрузке страницы
+document.addEventListener('DOMContentLoaded', async function() {
+    await updateUserIcon();
+    if (typeof initMobileMenu === 'function') initMobileMenu();
+    setActiveNavLink();
+});
+</script>
+<link rel="stylesheet" href="assets/chat-styles.css">
+<script src="assets/chat-widget.js"></script>
+</body>
+</html>

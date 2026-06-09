@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты - Доктор Зубов Детская стоматология</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    <style>
+        .contacts-page {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .contact-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .contact-card {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #3270ce;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .contact-icon {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #3286f4 0%, #3b55da 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .contact-icon i {
+            font-size: 22px;
+            color: white;
+        }
+
+        .contact-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .contact-card p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .contact-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-item:hover {
+            transform: translateX(5px);
+        }
+
+        .contact-item i {
+            color: #3270ce;
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .contact-item h4 {
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .contact-item p {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .work-schedule {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 60px 0;
+            border-radius: 20px;
+            margin-bottom: 60px;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .schedule-card {
+            background: white;
+            padding: 25px 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .schedule-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .schedule-card i {
+            font-size: 36px;
+            color: #3270ce;
+            margin-bottom: 12px;
+        }
+
+        .schedule-card h4 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .schedule-card p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .schedule-card .time {
+            font-weight: 700;
+            color: #3270ce;
+            font-size: 18px;
+        }
+
+        .map-full {
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-title {
+            background: linear-gradient(135deg, #3286f4 0%, #3b55da 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .map-title i {
+            font-size: 28px;
+        }
+
+        .map-title h3 {
+            font-size: 22px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .map-title p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 450px;
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .map-buttons {
+            display: flex;
+            gap: 15px;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .map-btn {
+            padding: 10px 25px;
+            background: white;
+            border: 2px solid #3270ce;
+            border-radius: 8px;
+            color: #3270ce;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .map-btn:hover {
+            background: #3270ce;
+            color: white;
+        }
+
+        @media (max-width: 992px) {
+            .contacts-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .contact-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .contact-item {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+                align-items: center;
+            }
+
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .map-container {
+                height: 300px;
+            }
+
+            .map-title {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px 20px;
+            }
+
+            .map-buttons {
+                flex-direction: column;
+            }
+
+            .map-btn {
+                text-align: center;
+            }
+        }
+        /* ========== ХЕДЕР И НАВИГАЦИЯ ========== */
+.header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    color: #3270ce;
+    text-decoration: none;
+}
+
+.logo i {
+    font-size: 28px;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+    font-size: 15px;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    color: #3270ce;
+}
+
+/* ========== ИКОНКА ПОЛЬЗОВАТЕЛЯ ========== */
+.user-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: #3270ce;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+.user-icon-link:hover {
+    background: #2558a8;
+    transform: scale(1.05);
+    color: white;
+}
+
+.user-icon-link i {
+    font-size: 20px;
+}
+
+/* Кнопка "Записаться" в хедере (если нужна) */
+.btn-header {
+    background: #ff9800;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-header:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+}
+
+/* ========== МОБИЛЬНОЕ МЕНЮ ========== */
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+    color: #333;
+}
+
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        z-index: 1000;
+        gap: 15px;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .user-icon-link {
+        margin-left: 0;
+        width: 100%;
+        border-radius: 40px;
+        background: #3270ce;
+    }
+
+    .navbar {
+        flex-wrap: wrap;
+    }
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 768px) {
+    .user-icon-link {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-left: 10px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .logo i {
+        font-size: 24px;
+    }
+}
+        /* ========== ФИКС МОБИЛЬНОГО МЕНЮ (добавить в конец style) ========== */
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+        z-index: 1001;
+        position: relative;
+    }
+
+    /* Оверлей */
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+
+    .menu-overlay.active {
+        display: block;
+    }
+
+    /* Меню - выезжает справа */
+    .nav-menu {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        left: auto !important;
+        width: 80% !important;
+        max-width: 320px !important;
+        height: 100vh !important;
+        background: white !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 80px 25px 30px !important;
+        margin: 0 !important;
+        gap: 15px !important;
+        z-index: 999 !important;
+        transition: right 0.3s ease !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: flex !important;
+        box-shadow: -2px 0 15px rgba(0,0,0,0.1) !important;
+    }
+
+    .nav-menu.active {
+        right: 0 !important;
+        display: flex !important;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+        border-radius: 12px !important;
+    }
+
+    .user-icon-link {
+        margin-left: 0 !important;
+        width: 100% !important;
+        border-radius: 12px !important;
+        padding: 12px 20px !important;
+        justify-content: center !important;
+    }
+
+    /* Блокируем прокрутку body */
+    body.menu-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .navbar {
+        flex-wrap: nowrap !important;
+    }
+}
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="container">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-smile"></i>
+                <span>Доктор Зубов</span>
+            </a>
+
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Главная</a>
+                <a href="/services" class="nav-link">Услуги</a>
+                <a href="/price" class="nav-link">Цены</a>
+                <a href="/doctors" class="nav-link">Врачи</a>
+                <a href="/hot_sales" class="nav-link">Акции</a>
+                <a href="/about" class="nav-link">О нас</a>
+                <a href="/contacts" class="nav-link">Контакты</a>
+                <a href="/appointment" class="btn-header">Записаться</a>
+                <!-- ИКОНКА ПОЛЬЗОВАТЕЛЯ -->
+                <a href="/login" id="userIconLink" class="user-icon-link">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </div>
+</header>
+
+<section class="page-hero">
+    <div class="container">
+        <div class="page-hero-content">
+            <h1 class="page-hero-title">Контакты клиник «Доктор Зубов»</h1>
+            <p class="page-hero-subtitle">Адреса, телефоны, время работы</p>
+        </div>
+    </div>
+</section>
+
+<section class="contacts-page">
+    <div class="container">
+        <div class="contacts-grid">
+            <div>
+                <h2 class="section-title" style="margin-bottom: 20px;">Наши контакты</h2>
+                <p style="color: #666; margin-bottom: 30px;">Мы всегда рады помочь вам и вашему ребенку. Выберите удобный способ связи или посетите нашу клинику.</p>
+
+                <div class="contact-cards">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3>Клиника на ул. Сергея Лазо</h3>
+                        <p>г. Оренбург, ул. Сергея Лазо, 14<br>Специализированное детское отделение</p>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3>Клиника на ул. Инструментальной</h3>
+                        <p>г. Оренбург, ул. Инструментальная, 3<br>Рядом с заводом РТИ</p>
+                    </div>
+                </div>
+
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Телефон для записи</h4>
+                            <p>+7 (3532) 78-88-88</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <h4>WhatsApp</h4>
+                            <p>+7 (900) 123-45-67</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Электронная почта</h4>
+                            <p>deti@drzubov.ru</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="section-title" style="margin-bottom: 20px;">Реквизиты</h2>
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <i class="fas fa-building"></i>
+                        <div>
+                            <h4>ООО «Доктор Зубов»</h4>
+                            <p>ИНН: 5610123456<br>ОГРН: 1025600000000</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-file-medical"></i>
+                        <div>
+                            <h4>Лицензия</h4>
+                            <p>№ ЛО-56-01-001234 от 15.03.2020<br>Бессрочно</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="work-schedule">
+    <div class="container">
+        <h2 class="section-title text-center">Режим работы отделений</h2>
+        <div class="schedule-grid">
+            <div class="schedule-card">
+                <i class="fas fa-calendar-day"></i>
+                <h4>Будние дни</h4>
+                <p class="time">8:00 - 20:00</p>
+                <p>Прием ведут все специалисты</p>
+            </div>
+            <div class="schedule-card">
+                <i class="fas fa-calendar-week"></i>
+                <h4>Суббота</h4>
+                <p class="time">9:00 - 18:00</p>
+                <p>Дежурный врач, неотложная помощь</p>
+            </div>
+            <div class="schedule-card">
+                <i class="fas fa-calendar-week"></i>
+                <h4>Воскресенье</h4>
+                <p class="time">9:00 - 16:00</p>
+                <p>Только по предварительной записи</p>
+            </div>
+            <div class="schedule-card">
+                <i class="fas fa-ambulance"></i>
+                <h4>Неотложная помощь</h4>
+                <p class="time">Круглосуточно</p>
+                <p>+7 (900) 123-45-67</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="map-full">
+    <div class="map-title">
+        <i class="fas fa-map-marked-alt"></i>
+        <div>
+            <h3>Как нас найти</h3>
+            <p>Выберите адрес на карте, чтобы посмотреть расположение клиники</p>
+        </div>
+    </div>
+    <div class="map-container" id="mapContainer">
+        <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A1&source=constructor&mode=search&text=Оренбург%20улица%20Сергея%20Лазо%2014" frameborder="0"></iframe>
+    </div>
+    <div class="map-buttons">
+        <button class="map-btn" onclick="showMap('lazo')">
+            <i class="fas fa-map-marker-alt"></i> ул. Сергея Лазо, 14
+        </button>
+        <button class="map-btn" onclick="showMap('instrumental')">
+            <i class="fas fa-map-marker-alt"></i> ул. Инструментальная, 3
+        </button>
+    </div>
+</section>
+
+<section class="appointment-cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Записаться на прием</h2>
+            <p>Выберите удобную дату и время для визита в нашу клинику</p>
+            <a href="appointment.html" class="btn btn-primary btn-large">Записаться онлайн</a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <a href="index.html" class="footer-logo">
+                    <i class="fas fa-smile"></i>
+                    <span>Доктор Зубов</span>
+                </a>
+                <p class="footer-text">Детская стоматология с 1991 года. Лечим с любовью и заботой о каждом маленьком пациенте.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-vk"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Для детей</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">Лечение кариеса</a></li>
+                    <li><a href="services.html">Герметизация фиссур</a></li>
+                    <li><a href="services.html">Исправление прикуса</a></li>
+                    <li><a href="services.html">Лечение под седацией</a></li>
+                    <li><a href="services.html">Профилактика</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Контакты</h3>
+                <ul class="footer-contacts">
+                    <li><i class="fas fa-phone"></i> +7 (3532) 78-88-88</li>
+                    <li><i class="fas fa-envelope"></i> deti@drzubov.ru</li>
+                    <li><i class="fas fa-clock"></i> Пн-Пт: 8:00-20:00<br>Сб: 9:00-18:00<br>Вс: 9:00-16:00</li>
+                    <li><i class="fas fa-map-marker-alt"></i> г. Оренбург, ул. Сергея Лазо, 14</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Запись на прием</h3>
+                <p class="footer-text">Запишитесь на консультацию онлайн или по телефону</p>
+                <a href="appointment.html" class="btn btn-primary btn-small">Записаться</a>
+                <div class="footer-bonus">
+                    <i class="fas fa-gift"></i>
+                    <span>При первом визите — подарок!</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Клиника «Доктор Зубов». Детская стоматология. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+function showMap(clinic) {
+    const mapContainer = document.getElementById('mapContainer');
+    if (clinic === 'lazo') {
+        mapContainer.innerHTML = '<iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A1&source=constructor&mode=search&text=Оренбург%20улица%20Сергея%20Лазо%2014" frameborder="0"></iframe>';
+    } else {
+        mapContainer.innerHTML = '<iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A1&source=constructor&mode=search&text=Оренбург%20улица%20Инструментальная%203" frameborder="0"></iframe>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ========== МОБИЛЬНОЕ МЕНЮ ==========
+(function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
+    if (!menuToggle || !navMenu) return;
+
+    const body = document.body;
+
+    // Создаем оверлей
+    let overlay = document.querySelector('.menu-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'menu-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    function openMenu() {
+        navMenu.classList.add('active');
+        overlay.classList.add('active');
+        body.classList.add('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        }
+    }
+
+    function closeMenu() {
+        navMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    }
+
+    menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (navMenu.classList.contains('active')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+})();
+});
+</script>
+<script>
+// ========== АВТОРИЗАЦИЯ И ИКОНКА ПОЛЬЗОВАТЕЛЯ ==========
+
+// Проверка авторизации через API
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/auth/check', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        return data.isAuthenticated === true;
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error);
+        return false;
+    }
+}
+
+// Получение данных пользователя
+async function getUserInfo() {
+    try {
+        const response = await fetch('/api/auth/user', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.user;
+        }
+        return null;
+    } catch (error) {
+        console.error('Ошибка получения данных пользователя:', error);
+        return null;
+    }
+}
+
+// Обновление иконки пользователя
+async function updateUserIcon() {
+    const userIconLink = document.getElementById('userIconLink');
+    if (!userIconLink) return;
+
+    const isAuthenticated = await checkAuthStatus();
+
+    if (isAuthenticated) {
+        userIconLink.href = '/profile';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user');
+            icon.classList.add('fa-user-circle');
+        }
+        const user = await getUserInfo();
+        userIconLink.title = user ? user.name : 'Личный кабинет';
+    } else {
+        userIconLink.href = '/login';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user-circle');
+            icon.classList.add('fa-user');
+        }
+        userIconLink.title = 'Войти';
+    }
+}
+
+// Активная ссылка в меню
+function setActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (linkPath === currentPath ||
+            (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+
+// Запуск при загрузке страницы
+document.addEventListener('DOMContentLoaded', async function() {
+    await updateUserIcon();
+    if (typeof initMobileMenu === 'function') initMobileMenu();
+    setActiveNavLink();
+});
+</script>
+<link rel="stylesheet" href="assets/chat-styles.css">
+<script src="assets/chat-widget.js"></script>
+</body>
+</html>

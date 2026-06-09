@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цены - Доктор Зубов Детская стоматология</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    <style>
+        .price-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .price-age-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .age-tab {
+            padding: 12px 30px;
+            background: #f0f4fc;
+            border: none;
+            border-radius: 40px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .age-tab:hover {
+            background: #3270ce;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .age-tab.active {
+            background: #3270ce;
+            color: white;
+            box-shadow: 0 4px 12px rgba(50, 112, 206, 0.3);
+        }
+
+        .price-table-container {
+            overflow-x: auto;
+            margin-bottom: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .price-table th {
+            background: linear-gradient(135deg, #3286f4 0%, #3b55da 100%);
+            color: white;
+            font-weight: 600;
+            text-align: left;
+            padding: 18px 20px;
+            font-size: 16px;
+        }
+
+        .price-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        .price-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .price-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .price-table td:last-child {
+            font-weight: 700;
+            color: #3270ce;
+            font-size: 18px;
+        }
+
+        .price-note {
+            background: #e9f3ff;
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .price-note i {
+            color: #3270ce;
+            font-size: 28px;
+        }
+
+        .price-note p {
+            color: #333;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 50px 0;
+        }
+
+        .payment-method-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .payment-method-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .payment-method-card i {
+            font-size: 48px;
+            color: #3270ce;
+            margin-bottom: 15px;
+        }
+
+        .payment-method-card h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .payment-method-card p {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .consultation-block {
+            background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            color: white;
+            margin: 50px 0 50px 0;
+        }
+
+        .consultation-block h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .consultation-block p {
+            font-size: 18px;
+            margin-bottom: 25px;
+            opacity: 0.95;
+        }
+
+        .consultation-block .btn-primary {
+            background: white;
+            color: #ff6b00;
+            border: none;
+        }
+
+        .consultation-block .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+            color: #3270ce;
+            font-size: 18px;
+        }
+
+        .loading-spinner i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .price-table th, .price-table td {
+                padding: 12px 15px;
+                font-size: 13px;
+            }
+
+            .price-table td:last-child {
+                font-size: 16px;
+            }
+
+            .consultation-block {
+                padding: 30px 20px;
+            }
+
+            .consultation-block h3 {
+                font-size: 24px;
+            }
+
+            .consultation-block p {
+                font-size: 16px;
+            }
+
+            .age-tab {
+                padding: 8px 20px;
+                font-size: 14px;
+            }
+        }
+        /* ========== ХЕДЕР И НАВИГАЦИЯ ========== */
+.header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    color: #3270ce;
+    text-decoration: none;
+}
+
+.logo i {
+    font-size: 28px;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+    font-size: 15px;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    color: #3270ce;
+}
+
+/* ========== ИКОНКА ПОЛЬЗОВАТЕЛЯ ========== */
+.user-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: #3270ce;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+.user-icon-link:hover {
+    background: #2558a8;
+    transform: scale(1.05);
+    color: white;
+}
+
+.user-icon-link i {
+    font-size: 20px;
+}
+
+/* Кнопка "Записаться" в хедере (если нужна) */
+.btn-header {
+    background: #ff9800;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-header:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+}
+
+/* ========== МОБИЛЬНОЕ МЕНЮ ========== */
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+    color: #333;
+}
+
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        z-index: 1000;
+        gap: 15px;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .user-icon-link {
+        margin-left: 0;
+        width: 100%;
+        border-radius: 40px;
+        background: #3270ce;
+    }
+
+    .navbar {
+        flex-wrap: wrap;
+    }
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 768px) {
+    .user-icon-link {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-left: 10px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .logo i {
+        font-size: 24px;
+    }
+}
+        /* ========== ФИКС МОБИЛЬНОГО МЕНЮ (добавить в конец style) ========== */
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+        z-index: 1001;
+        position: relative;
+    }
+
+    /* Оверлей */
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+
+    .menu-overlay.active {
+        display: block;
+    }
+
+    /* Меню - выезжает справа */
+    .nav-menu {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        left: auto !important;
+        width: 80% !important;
+        max-width: 320px !important;
+        height: 100vh !important;
+        background: white !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 80px 25px 30px !important;
+        margin: 0 !important;
+        gap: 15px !important;
+        z-index: 999 !important;
+        transition: right 0.3s ease !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: flex !important;
+        box-shadow: -2px 0 15px rgba(0,0,0,0.1) !important;
+    }
+
+    .nav-menu.active {
+        right: 0 !important;
+        display: flex !important;
+    }
+
+    .nav-menu a,
+    .nav-menu .btn-header {
+        margin: 5px 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+        border-radius: 12px !important;
+    }
+
+    .user-icon-link {
+        margin-left: 0 !important;
+        width: 100% !important;
+        border-radius: 12px !important;
+        padding: 12px 20px !important;
+        justify-content: center !important;
+    }
+
+    /* Блокируем прокрутку body */
+    body.menu-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .navbar {
+        flex-wrap: nowrap !important;
+    }
+}
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="container">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <i class="fas fa-smile"></i>
+                <span>Доктор Зубов</span>
+            </a>
+
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Главная</a>
+                <a href="/services" class="nav-link">Услуги</a>
+                <a href="/price" class="nav-link">Цены</a>
+                <a href="/doctors" class="nav-link">Врачи</a>
+                <a href="/hot_sales" class="nav-link">Акции</a>
+                <a href="/about" class="nav-link">О нас</a>
+                <a href="/contacts" class="nav-link">Контакты</a>
+                <a href="/appointment" class="btn-header">Записаться</a>
+                <!-- ИКОНКА ПОЛЬЗОВАТЕЛЯ -->
+                <a href="/login" id="userIconLink" class="user-icon-link">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </div>
+</header>
+
+<section class="page-hero">
+    <div class="container">
+        <div class="page-hero-content">
+            <h1 class="page-hero-title">Цены на детские услуги</h1>
+            <p class="page-hero-subtitle">Прозрачное ценообразование для детей от 0 до 16 лет</p>
+        </div>
+    </div>
+</section>
+
+<section class="pricing">
+    <div class="container">
+        <div class="price-header">
+            <h2 class="section-title">Стоимость услуг</h2>
+            <p class="section-subtitle">Актуальные цены на основные детские стоматологические услуги</p>
+        </div>
+
+        <div class="price-age-tabs">
+            <button class="age-tab active" data-age="all">Все услуги</button>
+            <button class="age-tab" data-age="0-3">0-3 года</button>
+            <button class="age-tab" data-age="4-7">4-7 лет</button>
+            <button class="age-tab" data-age="8-12">8-12 лет</button>
+            <button class="age-tab" data-age="13-16">13-16 лет</button>
+        </div>
+
+        <div class="price-table-container">
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Наименование услуги</th>
+                        <th>Возраст</th>
+                        <th>Цена, руб.</th>
+                        <th>Запись</th>
+                    </tr>
+                </thead>
+                <tbody id="priceTableBody">
+                    <tr>
+                        <td colspan="4" class="loading-spinner">
+                            <i class="fas fa-spinner"></i><br>
+                            Загрузка цен...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="price-note">
+            <i class="fas fa-info-circle"></i>
+            <p>Цены указаны без учета стоимости анестезии и дополнительных материалов. Точная стоимость определяется после консультации с врачом. Действуют сезонные акции и скидки.</p>
+        </div>
+
+        <div class="payment-methods">
+            <div class="payment-method-card">
+                <i class="fas fa-money-bill-wave"></i>
+                <h4>Наличный расчет</h4>
+                <p>Оплата в кассе клиники</p>
+            </div>
+            <div class="payment-method-card">
+                <i class="fas fa-credit-card"></i>
+                <h4>Банковские карты</h4>
+                <p>Visa, Mastercard, МИР</p>
+            </div>
+            <div class="payment-method-card">
+                <i class="fas fa-mobile-alt"></i>
+                <h4>Мобильные платежи</h4>
+                <p>Apple Pay, Google Pay</p>
+            </div>
+            <div class="payment-method-card">
+                <i class="fas fa-calendar-check"></i>
+                <h4>Рассрочка 0%</h4>
+                <p>На лечение от 10 000 ₽</p>
+            </div>
+        </div>
+
+        <div class="consultation-block">
+            <h3>Нужна консультация?</h3>
+            <p>Запишитесь на бесплатную консультацию для точного расчета стоимости лечения вашего ребенка</p>
+            <a href="appointment.html" class="btn btn-primary btn-large">Записаться на консультацию</a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <a href="index.html" class="footer-logo">
+                    <i class="fas fa-smile"></i>
+                    <span>Доктор Зубов</span>
+                </a>
+                <p class="footer-text">Детская стоматология с 1991 года. Лечим с любовью и заботой о каждом маленьком пациенте.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-vk"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Для детей</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">Лечение кариеса</a></li>
+                    <li><a href="services.html">Герметизация фиссур</a></li>
+                    <li><a href="services.html">Исправление прикуса</a></li>
+                    <li><a href="services.html">Лечение под седацией</a></li>
+                    <li><a href="services.html">Профилактика</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Контакты</h3>
+                <ul class="footer-contacts">
+                    <li><i class="fas fa-phone"></i> +7 (3532) 78-88-88</li>
+                    <li><i class="fas fa-envelope"></i> deti@drzubov.ru</li>
+                    <li><i class="fas fa-clock"></i> Пн-Пт: 8:00-20:00<br>Сб: 9:00-18:00<br>Вс: 9:00-16:00</li>
+                    <li><i class="fas fa-map-marker-alt"></i> г. Оренбург, ул. Сергея Лазо, 14</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Запись на прием</h3>
+                <p class="footer-text">Запишитесь на консультацию онлайн или по телефону</p>
+                <a href="appointment.html" class="btn btn-primary btn-small">Записаться</a>
+                <div class="footer-bonus">
+                    <i class="fas fa-gift"></i>
+                    <span>При первом визите — подарок!</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Клиника «Доктор Зубов». Детская стоматология. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+let allServices = [];
+
+async function loadServices() {
+    try {
+        const response = await fetch('/api/services');
+        if (!response.ok) throw new Error('Ошибка загрузки услуг');
+        allServices = await response.json();
+        renderPriceTable('all');
+    } catch (error) {
+        console.error('Ошибка:', error);
+        document.getElementById('priceTableBody').innerHTML = `
+            <tr>
+                <td colspan="4" class="loading-spinner" style="color: #dc3545;">
+                    <i class="fas fa-exclamation-triangle"></i><br>
+                    Ошибка загрузки цен. Пожалуйста, обновите страницу.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function getAgeCategory(price) {
+    if (price.age_range) return price.age_range;
+    if (price.for_kids === 1) return '0-16';
+    return 'all';
+}
+
+function filterServicesByAge(ageFilter) {
+    if (ageFilter === 'all') return allServices;
+
+    return allServices.filter(service => {
+        if (ageFilter === '0-3') return service.title.includes('0-3') || service.title.includes('молочных') || service.title.includes('Серебрение') || service.title.includes('Адаптационный');
+        if (ageFilter === '4-7') return service.title.includes('4-7') || service.title.includes('молочных') || service.title.includes('Герметизация') || service.title.includes('Удаление молочного');
+        if (ageFilter === '8-12') return service.title.includes('8-12') || service.title.includes('Установка пластинки') || service.title.includes('Герметизация') || service.title.includes('постоянного');
+        if (ageFilter === '13-16') return service.title.includes('13-16') || service.title.includes('брекет') || service.title.includes('Элайнеры') || service.title.includes('постоянного');
+        return true;
+    });
+}
+
+function renderPriceTable(ageFilter) {
+    const tbody = document.getElementById('priceTableBody');
+    if (!tbody) return;
+
+    let filteredServices = filterServicesByAge(ageFilter);
+
+    if (filteredServices.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="loading-spinner">
+                    <i class="fas fa-search"></i><br>
+                    Услуги не найдены
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = filteredServices.map(service => {
+        let ageDisplay = '0-16 лет';
+        if (service.title.includes('молочных') || service.title.includes('Серебрение') || service.title.includes('Адаптационный')) ageDisplay = '0-7 лет';
+        if (service.title.includes('Герметизация') || service.title.includes('Удаление молочного')) ageDisplay = '4-12 лет';
+        if (service.title.includes('Установка пластинки')) ageDisplay = '6-12 лет';
+        if (service.title.includes('брекет') || service.title.includes('Элайнеры')) ageDisplay = '12-16 лет';
+        if (service.title.includes('Лечение под седацией')) ageDisplay = '0-12 лет';
+
+        return `
+            <tr>
+                <td>${service.title}</td>
+                <td>${ageDisplay}</td>
+                <td>${service.price === 0 ? 'Бесплатно' : service.price.toLocaleString() + ' ₽'}</td>
+                <td><a href="appointment.html?service=${service.id}" class="btn btn-primary btn-small">Записаться</a></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadServices();
+
+    const ageTabs = document.querySelectorAll('.age-tab');
+    ageTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            ageTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const age = this.dataset.age;
+            renderPriceTable(age);
+        });
+    });
+
+    // ========== МОБИЛЬНОЕ МЕНЮ ==========
+(function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
+    if (!menuToggle || !navMenu) return;
+
+    const body = document.body;
+
+    // Создаем оверлей
+    let overlay = document.querySelector('.menu-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'menu-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    function openMenu() {
+        navMenu.classList.add('active');
+        overlay.classList.add('active');
+        body.classList.add('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        }
+    }
+
+    function closeMenu() {
+        navMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+        const icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    }
+
+    menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (navMenu.classList.contains('active')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+})();
+});
+</script>
+<script>
+// ========== АВТОРИЗАЦИЯ И ИКОНКА ПОЛЬЗОВАТЕЛЯ ==========
+
+// Проверка авторизации через API
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/auth/check', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        return data.isAuthenticated === true;
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error);
+        return false;
+    }
+}
+
+// Получение данных пользователя
+async function getUserInfo() {
+    try {
+        const response = await fetch('/api/auth/user', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.user;
+        }
+        return null;
+    } catch (error) {
+        console.error('Ошибка получения данных пользователя:', error);
+        return null;
+    }
+}
+
+// Обновление иконки пользователя
+async function updateUserIcon() {
+    const userIconLink = document.getElementById('userIconLink');
+    if (!userIconLink) return;
+
+    const isAuthenticated = await checkAuthStatus();
+
+    if (isAuthenticated) {
+        userIconLink.href = '/profile';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user');
+            icon.classList.add('fa-user-circle');
+        }
+        const user = await getUserInfo();
+        userIconLink.title = user ? user.name : 'Личный кабинет';
+    } else {
+        userIconLink.href = '/login';
+        const icon = userIconLink.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-user-circle');
+            icon.classList.add('fa-user');
+        }
+        userIconLink.title = 'Войти';
+    }
+}
+
+// Активная ссылка в меню
+function setActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (linkPath === currentPath ||
+            (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+
+// Запуск при загрузке страницы
+document.addEventListener('DOMContentLoaded', async function() {
+    await updateUserIcon();
+    if (typeof initMobileMenu === 'function') initMobileMenu();
+    setActiveNavLink();
+});
+</script>
+<link rel="stylesheet" href="assets/chat-styles.css">
+<script src="assets/chat-widget.js"></script>
+</body>
+</html>

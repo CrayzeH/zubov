@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#222"/>
+    </marker>
+    <style>
+      .box { fill: #fff; stroke: #222; stroke-width: 2; }
+      .small { fill: #fff; stroke: #777; stroke-width: 2; }
+      .text { font-family: Arial, sans-serif; font-size: 20px; fill: #111; }
+      .center { text-anchor: middle; dominant-baseline: middle; }
+      .line { stroke: #222; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect x="390" y="300" width="360" height="190" class="box"/>
+  <text x="570" y="395" class="text center">Веб-приложение «Доктор Зубов»</text>
+
+  <rect x="30" y="320" width="315" height="30" class="small"/>
+  <text x="187.5" y="335" class="text center">Данные пользователей</text>
+  <path d="M345 335 L390 335" class="line"/>
+
+  <rect x="30" y="385" width="315" height="30" class="small"/>
+  <text x="187.5" y="400" class="text center">Данные врачей, услуг и акций</text>
+  <path d="M345 400 L390 400" class="line"/>
+
+  <rect x="30" y="450" width="315" height="30" class="small"/>
+  <text x="187.5" y="465" class="text center">Заявки на прием</text>
+  <path d="M345 465 L390 465" class="line"/>
+
+  <rect x="455" y="40" width="30" height="210" class="small"/>
+  <text x="470" y="145" class="text center" transform="rotate(90 470 145)">Правила записи</text>
+  <path d="M470 250 L470 300" class="line"/>
+
+  <rect x="555" y="75" width="30" height="175" class="small"/>
+  <text x="570" y="162.5" class="text center" transform="rotate(90 570 162.5)">Роли доступа</text>
+  <path d="M570 250 L570 300" class="line"/>
+
+  <rect x="655" y="40" width="30" height="210" class="small"/>
+  <text x="670" y="145" class="text center" transform="rotate(90 670 145)">Данные клиники</text>
+  <path d="M670 250 L670 300" class="line"/>
+
+  <rect x="455" y="535" width="30" height="210" class="small"/>
+  <text x="470" y="640" class="text center" transform="rotate(90 470 640)">Пользователи системы</text>
+  <path d="M470 535 L470 490" class="line"/>
+
+  <rect x="555" y="565" width="30" height="180" class="small"/>
+  <text x="570" y="655" class="text center" transform="rotate(90 570 655)">Сервер и база данных</text>
+  <path d="M570 565 L570 490" class="line"/>
+
+  <rect x="655" y="555" width="30" height="190" class="small"/>
+  <text x="670" y="650" class="text center" transform="rotate(90 670 650)">ИИ-сервис</text>
+  <path d="M670 555 L670 490" class="line"/>
+
+  <path d="M750 330 L805 330" class="line"/>
+  <rect x="805" y="315" width="330" height="30" class="small"/>
+  <text x="970" y="330" class="text center">Страницы сайта</text>
+
+  <path d="M750 375 L805 375" class="line"/>
+  <rect x="805" y="360" width="330" height="30" class="small"/>
+  <text x="970" y="375" class="text center">Запись на прием</text>
+
+  <path d="M750 420 L805 420" class="line"/>
+  <rect x="805" y="405" width="330" height="30" class="small"/>
+  <text x="970" y="420" class="text center">Личный кабинет</text>
+
+  <path d="M750 465 L805 465" class="line"/>
+  <rect x="805" y="450" width="330" height="30" class="small"/>
+  <text x="970" y="465" class="text center">Административная панель</text>
+
+  <path d="M750 510 L805 510" class="line"/>
+  <rect x="805" y="495" width="330" height="30" class="small"/>
+  <text x="970" y="510" class="text center">Ответ ИИ-помощника</text>
+</svg>
