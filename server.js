@@ -15,27 +15,31 @@ const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '0.0.0.0';
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Пути через переменные окружения
-const DB_PATH = process.env.DB_PATH || '/tmp/drz.db';
-const SESSIONS_DB_PATH = process.env.SESSIONS_DB_PATH || '/tmp/sessions.db';
-const PUBLIC_PATH = process.env.PUBLIC_PATH || path.join(__dirname, 'public');
-const ASSETS_PATH = process.env.ASSETS_PATH || path.join(PUBLIC_PATH, 'assets', 'assets');
-
 app.set('trust proxy', 1);
+
+// Пути к базам данных
+const DB_PATH = '/tmp/drz.db';
+const SESSIONS_DB_PATH = '/tmp/sessions.db';
 
 // База данных
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
-        console.error('Путь к БД:', DB_PATH);
         process.exit(1);
     } else {
         console.log('✅ Подключено к SQLite базе данных:', DB_PATH);
-        console.log('✅ Публичная папка:', PUBLIC_PATH);
-        console.log('✅ Папка ассетов:', ASSETS_PATH);
         initDatabase();
     }
 });
+
+// Middleware
+app.use(cors({
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
+    credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Функция инициализации всех таблиц
 function initDatabase() {
@@ -140,45 +144,81 @@ function initDatabase() {
         });
         console.log('✅ Все таблицы проверены и готовы');
 
-        // Запускаем сервер только после инициализации БД
-        startServer();
+        // Пробуем создать БД для сессий
+        try {
+            // Создаем директорию /tmp если её нет (на всякий случай)
+            if (!fs.existsSync('/tmp')) {
+                fs.mkdirSync('/tmp', { recursive: true });
+            }
+
+            // Пробуем разные пути для сессий
+            const sessionDbPaths = [
+                '/tmp/sessions.db',
+                '/tmp/sessions_fallback.db',
+                path.join(__dirname, 'sessions.db')
+            ];
+
+            let sessionDbPath = null;
+
+            for (const testPath of sessionDbPaths) {
+                try {
+                    const testDb = new sqlite3.Database(testPath);
+                    testDb.close();
+                    sessionDbPath = testPath;
+                    console.log('✅ БД сессий будет использоваться:', sessionDbPath);
+                    break;
+                } catch (e) {
+                    console.log('⚠️ Не удалось использовать', testPath, e.message);
+                }
+            }
+
+            if (!sessionDbPath) {
+                throw new Error('Не удалось найти путь для БД сессий');
+            }
+
+            // Настройка сессий
+            app.use(session({
+                store: new SQLiteStore({
+                    db: sessionDbPath,
+                    table: 'sessions',
+                    concurrentDB: true
+                }),
+                secret: process.env.SESSION_SECRET || 'detskaya-stomatologiya-secret-key-2026',
+                resave: false,
+                saveUninitialized: false,
+                cookie: {
+                    secure: isProduction,
+                    httpOnly: true,
+                    sameSite: isProduction ? 'none' : 'lax',
+                    maxAge: 1000 * 60 * 60 * 24
+                }
+            }));
+
+            console.log('✅ Сессии настроены');
+
+        } catch (error) {
+            console.error('❌ Ошибка настройки сессий:', error.message);
+            // Пробуем без сохранения сессий в БД
+            console.log('⚠️ Использую сессии в памяти');
+            app.use(session({
+                secret: process.env.SESSION_SECRET || 'detskaya-stomatologiya-secret-key-2026',
+                resave: false,
+                saveUninitialized: false,
+                cookie: {
+                    secure: isProduction,
+                    httpOnly: true,
+                    sameSite: isProduction ? 'none' : 'lax',
+                    maxAge: 1000 * 60 * 60 * 24
+                }
+            }));
+        }
+
+        // Запускаем сервер
+        app.listen(PORT, HOST, () => {
+            console.log(`🚀 Сервер запущен на http://${HOST}:${PORT}`);
+        });
     });
 }
-
-function startServer() {
-    app.listen(PORT, HOST, () => {
-        console.log(`🚀 Сервер запущен на http://${HOST}:${PORT}`);
-        console.log(`📁 БД: ${DB_PATH}`);
-        console.log(`📁 Сессии: ${SESSIONS_DB_PATH}`);
-    });
-}
-
-// Middleware
-app.use(cors({
-    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
-    credentials: true
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(PUBLIC_PATH));
-
-// Сессии
-app.use(session({
-    store: new SQLiteStore({
-        db: SESSIONS_DB_PATH,
-        table: 'sessions',
-        concurrentDB: true
-    }),
-    secret: process.env.SESSION_SECRET || 'detskaya-stomatologiya-secret-key-2026',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: isProduction,
-        httpOnly: true,
-        sameSite: isProduction ? 'none' : 'lax',
-        maxAge: 1000 * 60 * 60 * 24
-    }
-}));
 
 // Middleware для авторизации
 const requireAuth = (req, res, next) => {
@@ -233,16 +273,13 @@ function safeAssetFileName(fileName, contentType) {
 
 // ========== GIGACHAT AI ==========
 const agent = new https.Agent({ rejectUnauthorized: false });
-const GIGACHAT_AUTH_KEY = process.env.GIGACHAT_AUTH_KEY || "MDE5ZDVlYTktMjRmNy03NDZlLWEzMjktZWI4ODg0ZWQwNGFiOmUyMTM4YWMzLTRkYzItNDEwYy1hOTAyLTk0MTI0NTBhZWY0Yg==";
-const GIGACHAT_AUTH_URL = process.env.GIGACHAT_AUTH_URL || "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
-const GIGACHAT_API_URL = process.env.GIGACHAT_API_URL || "https://gigachat.devices.sberbank.ru/api/v1/chat/completions";
-const AI_ENABLED = process.env.AI_ENABLED !== 'false'; // По умолчанию включено
+const AUTHORIZATION_KEY = process.env.GIGACHAT_AUTH_KEY || "MDE5ZDVlYTktMjRmNy03NDZlLWEzMjktZWI4ODg0ZWQwNGFiOmUyMTM4YWMzLTRkYzItNDEwYy1hOTAyLTk0MTI0NTBhZWY0Yg==";
+const GIGACHAT_AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
+const GIGACHAT_API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions";
 
 let tokenCache = { token: null, expiresAt: 0 };
 
 async function getAccessToken() {
-    if (!AI_ENABLED) return null;
-
     if (tokenCache.token && tokenCache.expiresAt > Date.now() / 1000) {
         return tokenCache.token;
     }
@@ -255,7 +292,7 @@ async function getAccessToken() {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Accept': 'application/json',
                 'RqUID': rquid,
-                'Authorization': `Basic ${GIGACHAT_AUTH_KEY}`
+                'Authorization': `Basic ${AUTHORIZATION_KEY}`
             },
             body: 'scope=GIGACHAT_API_PERS',
             agent: agent
@@ -276,8 +313,6 @@ async function getAccessToken() {
 }
 
 async function askGigaChat(userMessage) {
-    if (!AI_ENABLED) return null;
-
     const token = await getAccessToken();
     if (!token) return null;
 
@@ -668,7 +703,6 @@ app.delete('/api/children/:id', requireAuth, (req, res) => {
     const childId = req.params.id;
     const userId = req.session.userId;
 
-    // Сначала проверяем, что ребенок принадлежит текущему пользователю
     db.get('SELECT id FROM children_profiles WHERE id = ? AND user_id = ?', [childId, userId], (err, child) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -679,7 +713,6 @@ app.delete('/api/children/:id', requireAuth, (req, res) => {
             return;
         }
 
-        // Удаляем ребенка
         db.run('DELETE FROM children_profiles WHERE id = ? AND user_id = ?', [childId, userId], function(err) {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -811,7 +844,6 @@ app.get('/api/slider-images', (req, res) => {
     });
 });
 
-// ========== ЭНДПОИНТ ДЛЯ ЧАТА ==========
 // ========== ADMIN API ==========
 app.get('/api/admin/check', requireAdmin, (req, res) => {
     res.json({ success: true, isAdmin: true });
@@ -974,7 +1006,7 @@ app.post('/api/admin/gallery/upload', requireAdmin, express.raw({ type: 'image/*
 
     const originalName = decodeURIComponent(req.headers['x-file-name'] || 'gallery.jpg');
     const fileName = safeAssetFileName(originalName, contentType);
-    const targetDir = ASSETS_PATH;
+    const targetDir = path.join(__dirname, 'public', 'assets', 'assets');
     fs.mkdirSync(targetDir, { recursive: true });
     fs.writeFileSync(path.join(targetDir, fileName), req.body);
 
@@ -1084,52 +1116,52 @@ app.post('/api/chat', async (req, res) => {
 
 // ========== СТРАНИЦЫ ==========
 app.get('/', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 app.get('/about', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'about.html'));
+    res.sendFile(path.join(__dirname, 'public', 'about.html'));
 });
 app.get('/services', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'services.html'));
+    res.sendFile(path.join(__dirname, 'public', 'services.html'));
 });
 app.get('/price', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'price.html'));
+    res.sendFile(path.join(__dirname, 'public', 'price.html'));
 });
 app.get('/doctors', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'doctors.html'));
+    res.sendFile(path.join(__dirname, 'public', 'doctors.html'));
 });
 app.get('/hot_sales', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'hot_sales.html'));
+    res.sendFile(path.join(__dirname, 'public', 'hot_sales.html'));
 });
 app.get('/appointment', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'appointment.html'));
+    res.sendFile(path.join(__dirname, 'public', 'appointment.html'));
 });
 app.get('/contacts', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'contacts.html'));
+    res.sendFile(path.join(__dirname, 'public', 'contacts.html'));
 });
 app.get('/profile', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'profile.html'));
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 app.get('/register', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'register.html'));
+    res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 app.get('/payment', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'payment.html'));
+    res.sendFile(path.join(__dirname, 'public', 'payment.html'));
 });
 app.get('/rules', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'rules.html'));
+    res.sendFile(path.join(__dirname, 'public', 'rules.html'));
 });
 app.get('/reviews', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'reviews.html'));
+    res.sendFile(path.join(__dirname, 'public', 'reviews.html'));
 });
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(PUBLIC_PATH, 'admin.html'));
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // 404
 app.use((req, res) => {
-    res.status(404).sendFile(path.join(PUBLIC_PATH, '404.html'));
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
