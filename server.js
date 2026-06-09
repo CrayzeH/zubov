@@ -5,7 +5,6 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 const https = require('https');
@@ -17,18 +16,12 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 app.set('trust proxy', 1);
 
-// Пути к базам данных
-const DB_PATH = '/tmp/drz.db';
-const SESSIONS_DB_PATH = '/tmp/sessions.db';
-
 // База данных
-const db = new sqlite3.Database(DB_PATH, (err) => {
+const db = new sqlite3.Database('./drz.db', (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
-        process.exit(1);
     } else {
-        console.log('✅ Подключено к SQLite базе данных:', DB_PATH);
-        initDatabase();
+        console.log('✅ Подключено к SQLite базе данных');
     }
 });
 
@@ -41,184 +34,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Функция инициализации всех таблиц
-function initDatabase() {
-    const tables = [
-        `CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            phone TEXT,
-            password TEXT NOT NULL,
-            role TEXT DEFAULT 'user',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS doctors (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            position TEXT,
-            experience TEXT,
-            description TEXT,
-            photo TEXT,
-            specialization TEXT,
-            is_active INTEGER DEFAULT 1
-        )`,
-        `CREATE TABLE IF NOT EXISTS services (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            icon TEXT,
-            category TEXT,
-            price REAL,
-            old_price REAL,
-            is_popular INTEGER DEFAULT 0,
-            for_kids INTEGER DEFAULT 1
-        )`,
-        `CREATE TABLE IF NOT EXISTS promotions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            discount INTEGER,
-            old_price REAL,
-            new_price REAL,
-            badge TEXT,
-            color TEXT,
-            icon TEXT,
-            end_date TEXT,
-            is_active INTEGER DEFAULT 1
-        )`,
-        `CREATE TABLE IF NOT EXISTS gallery (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            src TEXT NOT NULL,
-            alt TEXT,
-            category TEXT DEFAULT 'clinic',
-            sort_order INTEGER DEFAULT 0
-        )`,
-        `CREATE TABLE IF NOT EXISTS reviews (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            doctor_id INTEGER,
-            rating INTEGER,
-            text TEXT,
-            date TEXT,
-            verified INTEGER DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS appointments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            doctor_id INTEGER,
-            service_id INTEGER,
-            child_name TEXT,
-            child_age INTEGER,
-            appointment_date TEXT,
-            appointment_time TEXT,
-            comment TEXT,
-            status TEXT DEFAULT 'pending',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS children_profiles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            name TEXT NOT NULL,
-            birth_date TEXT,
-            medical_card TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS bonuses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            amount REAL,
-            description TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`
-    ];
-
-    db.serialize(() => {
-        tables.forEach(sql => {
-            db.run(sql, (err) => {
-                if (err) {
-                    console.error('Ошибка создания таблицы:', err);
-                }
-            });
-        });
-        console.log('✅ Все таблицы проверены и готовы');
-
-        // Пробуем создать БД для сессий
-        try {
-            // Создаем директорию /tmp если её нет (на всякий случай)
-            if (!fs.existsSync('/tmp')) {
-                fs.mkdirSync('/tmp', { recursive: true });
-            }
-
-            // Пробуем разные пути для сессий
-            const sessionDbPaths = [
-                '/tmp/sessions.db',
-                '/tmp/sessions_fallback.db',
-                path.join(__dirname, 'sessions.db')
-            ];
-
-            let sessionDbPath = null;
-
-            for (const testPath of sessionDbPaths) {
-                try {
-                    const testDb = new sqlite3.Database(testPath);
-                    testDb.close();
-                    sessionDbPath = testPath;
-                    console.log('✅ БД сессий будет использоваться:', sessionDbPath);
-                    break;
-                } catch (e) {
-                    console.log('⚠️ Не удалось использовать', testPath, e.message);
-                }
-            }
-
-            if (!sessionDbPath) {
-                throw new Error('Не удалось найти путь для БД сессий');
-            }
-
-            // Настройка сессий
-            app.use(session({
-                store: new SQLiteStore({
-                    db: sessionDbPath,
-                    table: 'sessions',
-                    concurrentDB: true
-                }),
-                secret: process.env.SESSION_SECRET || 'detskaya-stomatologiya-secret-key-2026',
-                resave: false,
-                saveUninitialized: false,
-                cookie: {
-                    secure: isProduction,
-                    httpOnly: true,
-                    sameSite: isProduction ? 'none' : 'lax',
-                    maxAge: 1000 * 60 * 60 * 24
-                }
-            }));
-
-            console.log('✅ Сессии настроены');
-
-        } catch (error) {
-            console.error('❌ Ошибка настройки сессий:', error.message);
-            // Пробуем без сохранения сессий в БД
-            console.log('⚠️ Использую сессии в памяти');
-            app.use(session({
-                secret: process.env.SESSION_SECRET || 'detskaya-stomatologiya-secret-key-2026',
-                resave: false,
-                saveUninitialized: false,
-                cookie: {
-                    secure: isProduction,
-                    httpOnly: true,
-                    sameSite: isProduction ? 'none' : 'lax',
-                    maxAge: 1000 * 60 * 60 * 24
-                }
-            }));
-        }
-
-        // Запускаем сервер
-        app.listen(PORT, HOST, () => {
-            console.log(`🚀 Сервер запущен на http://${HOST}:${PORT}`);
-        });
-    });
-}
+// Сессии в памяти
+app.use(session({
+    secret: 'detskaya-stomatologiya-secret-key-2026',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: isProduction,
+        httpOnly: true,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 1000 * 60 * 60 * 24
+    }
+}));
 
 // Middleware для авторизации
 const requireAuth = (req, res, next) => {
@@ -273,7 +100,7 @@ function safeAssetFileName(fileName, contentType) {
 
 // ========== GIGACHAT AI ==========
 const agent = new https.Agent({ rejectUnauthorized: false });
-const AUTHORIZATION_KEY = process.env.GIGACHAT_AUTH_KEY || "MDE5ZDVlYTktMjRmNy03NDZlLWEzMjktZWI4ODg0ZWQwNGFiOmUyMTM4YWMzLTRkYzItNDEwYy1hOTAyLTk0MTI0NTBhZWY0Yg==";
+const AUTHORIZATION_KEY = "MDE5ZDVlYTktMjRmNy03NDZlLWEzMjktZWI4ODg0ZWQwNGFiOmUyMTM4YWMzLTRkYzItNDEwYy1hOTAyLTk0MTI0NTBhZWY0Yg==";
 const GIGACHAT_AUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
 const GIGACHAT_API_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions";
 
@@ -703,6 +530,7 @@ app.delete('/api/children/:id', requireAuth, (req, res) => {
     const childId = req.params.id;
     const userId = req.session.userId;
 
+    // Сначала проверяем, что ребенок принадлежит текущему пользователю
     db.get('SELECT id FROM children_profiles WHERE id = ? AND user_id = ?', [childId, userId], (err, child) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -713,6 +541,7 @@ app.delete('/api/children/:id', requireAuth, (req, res) => {
             return;
         }
 
+        // Удаляем ребенка
         db.run('DELETE FROM children_profiles WHERE id = ? AND user_id = ?', [childId, userId], function(err) {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -844,6 +673,7 @@ app.get('/api/slider-images', (req, res) => {
     });
 });
 
+// ========== ЭНДПОИНТ ДЛЯ ЧАТА ==========
 // ========== ADMIN API ==========
 app.get('/api/admin/check', requireAdmin, (req, res) => {
     res.json({ success: true, isAdmin: true });
@@ -1164,4 +994,9 @@ app.get('/admin', (req, res) => {
 // 404
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
+// Запуск
+app.listen(PORT, HOST, () => {
+    console.log(`Server started on http://${HOST}:${PORT}`);
 });
