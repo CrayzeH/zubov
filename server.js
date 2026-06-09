@@ -5,9 +5,11 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 const https = require('https');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -16,10 +18,48 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 app.set('trust proxy', 1);
 
+// Функция поиска доступной для записи папки
+function ensureWritableDir(dir) {
+    const absoluteDir = path.resolve(dir);
+    fs.mkdirSync(absoluteDir, {recursive: true});
+    const probe = path.join(absoluteDir, `.write-test-${process.pid}-${Date.now()}`);
+    fs.writeFileSync(probe, 'ok');
+    fs.unlinkSync(probe);
+    return absoluteDir;
+}
+
+function pickStorageRoot() {
+    const candidates = [
+        process.env.STORAGE_ROOT,
+        process.env.DATA_DIR,
+        path.join(__dirname, '.data'),
+        path.join(os.tmpdir(), 'zubov')
+    ].filter(Boolean);
+
+    for (const candidate of candidates) {
+        try {
+            return ensureWritableDir(candidate);
+        } catch (err) {
+            console.warn(`Путь не доступен для записи: ${candidate} (${err.message})`);
+        }
+    }
+
+    throw new Error('Не найдена папка для записи');
+}
+
+const storageRoot = pickStorageRoot();
+const dbPath = path.join(storageRoot, 'drz.db');
+const sessionsDbPath = path.join(storageRoot, 'sessions.db');
+
+console.log(`📁 Папка для данных: ${storageRoot}`);
+console.log(`📁 БД: ${dbPath}`);
+console.log(`📁 Сессии: ${sessionsDbPath}`);
+
 // База данных
-const db = new sqlite3.Database('./drz.db', (err) => {
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
+        process.exit(1);
     } else {
         console.log('✅ Подключено к SQLite базе данных');
     }
@@ -34,8 +74,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Сессии в памяти
+// Сессии
 app.use(session({
+    store: new SQLiteStore({
+        db: sessionsDbPath,
+        table: 'sessions',
+        concurrentDB: true
+    }),
     secret: 'detskaya-stomatologiya-secret-key-2026',
     resave: false,
     saveUninitialized: false,
@@ -377,68 +422,46 @@ app.put('/api/appointments/:id/cancel', requireAuth, (req, res) => {
 });
 
 app.post('/api/auth/register', async (req, res) => {
-    console.log('📝 ЗАПРОС НА ОБЫЧНУЮ РЕГИСТРАЦИЮ');
-    console.log('Body:', JSON.stringify(req.body));
-
     const { name, email, phone, password } = req.body;
-    console.log('Данные:', { name, email, phone, password: '***' });
 
     if (!name || !email || !phone || !password) {
-        console.log('❌ Ошибка: не все поля заполнены');
         res.status(400).json({ message: 'Все поля обязательны' });
         return;
     }
 
     if (password.length < 6) {
-        console.log('❌ Ошибка: пароль короткий');
         res.status(400).json({ message: 'Пароль должен быть не менее 6 символов' });
         return;
     }
 
-    console.log('🔐 Хеширую пароль...');
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('✅ Пароль хеширован');
 
-    console.log('🔍 Проверяю существование email...');
     db.get('SELECT id FROM users WHERE email = ?', [email], (err, row) => {
         if (err) {
-            console.log('❌ Ошибка БД при проверке email:', err.message);
             res.status(500).json({ error: err.message });
             return;
         }
         if (row) {
-            console.log('❌ Email уже существует');
             res.status(400).json({ message: 'Пользователь с таким email уже существует' });
             return;
         }
-        console.log('✅ Email свободен');
 
-        console.log('📝 Создаю пользователя...');
         db.run(
             'INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
             [name, email, phone, hashedPassword, 'user'],
             function(err) {
                 if (err) {
-                    console.log('❌ Ошибка создания пользователя:', err.message);
                     res.status(500).json({ error: err.message });
                     return;
                 }
 
-                console.log('✅ Пользователь создан, ID:', this.lastID);
-
-                console.log('🎁 Добавляю бонус...');
                 db.run('INSERT INTO bonuses (user_id, amount, description) VALUES (?, ?, ?)',
                     [this.lastID, 500, 'Бонус за регистрацию'],
                     (err) => {
-                        if (err) {
-                            console.error('❌ Ошибка добавления бонуса:', err.message);
-                        } else {
-                            console.log('✅ Бонус добавлен');
-                        }
+                        if (err) console.error('Ошибка добавления бонуса:', err);
                     }
                 );
 
-                console.log('✅ Регистрация успешна!');
                 res.json({ id: this.lastID, message: 'Регистрация успешна' });
             }
         );
@@ -488,88 +511,59 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // Регистрация с возможностью сразу добавить ребенка
-// Регистрация с возможностью сразу добавить ребенка
 app.post('/api/auth/register-with-child', async (req, res) => {
-    console.log('📝 ЗАПРОС НА РЕГИСТРАЦИЮ');
-    console.log('Body:', JSON.stringify(req.body));
-
     const { name, email, phone, password, child } = req.body;
-    console.log('Данные:', { name, email, phone, password: '***', child });
 
     if (!name || !email || !phone || !password) {
-        console.log('❌ Ошибка: не все поля заполнены');
         res.status(400).json({ message: 'Все поля обязательны' });
         return;
     }
 
     if (password.length < 6) {
-        console.log('❌ Ошибка: пароль короткий');
         res.status(400).json({ message: 'Пароль должен быть не менее 6 символов' });
         return;
     }
 
-    console.log('🔐 Хеширую пароль...');
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('✅ Пароль хеширован');
 
-    console.log('🔍 Проверяю существование email...');
     db.get('SELECT id FROM users WHERE email = ?', [email], (err, row) => {
         if (err) {
-            console.log('❌ Ошибка БД при проверке email:', err.message);
             res.status(500).json({ error: err.message });
             return;
         }
         if (row) {
-            console.log('❌ Email уже существует');
             res.status(400).json({ message: 'Пользователь с таким email уже существует' });
             return;
         }
-        console.log('✅ Email свободен');
 
-        console.log('📝 Создаю пользователя...');
         db.run(
             'INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
             [name, email, phone, hashedPassword, 'user'],
             function(err) {
                 if (err) {
-                    console.log('❌ Ошибка создания пользователя:', err.message);
                     res.status(500).json({ error: err.message });
                     return;
                 }
 
                 const userId = this.lastID;
-                console.log('✅ Пользователь создан, ID:', userId);
 
                 // Добавляем бонус за регистрацию
-                console.log('🎁 Добавляю бонус...');
                 db.run('INSERT INTO bonuses (user_id, amount, description) VALUES (?, ?, ?)',
                     [userId, 500, 'Бонус за регистрацию'],
-                    (err) => {
-                        if (err) {
-                            console.error('❌ Ошибка добавления бонуса:', err.message);
-                        } else {
-                            console.log('✅ Бонус добавлен');
-                        }
-                    }
+                    (err) => { if (err) console.error('Ошибка добавления бонуса:', err); }
                 );
 
                 // Добавляем ребенка, если данные переданы
                 if (child && child.name && child.birth_date) {
-                    console.log('👶 Добавляю ребенка:', child.name, child.birth_date);
                     db.run(
                         'INSERT INTO children_profiles (user_id, name, birth_date, medical_card) VALUES (?, ?, ?, ?)',
                         [userId, child.name, child.birth_date, child.medical_card || null],
                         (err) => {
-                            if (err) {
-                                console.error('❌ Ошибка добавления ребенка:', err.message);
-                            } else {
-                                console.log('✅ Ребенок добавлен');
-                            }
+                            if (err) console.error('Ошибка добавления ребенка:', err);
                         }
                     );
                 }
 
-                console.log('✅ Регистрация успешна!');
                 res.json({ id: userId, message: 'Регистрация успешна' });
             }
         );
@@ -581,7 +575,6 @@ app.delete('/api/children/:id', requireAuth, (req, res) => {
     const childId = req.params.id;
     const userId = req.session.userId;
 
-    // Сначала проверяем, что ребенок принадлежит текущему пользователю
     db.get('SELECT id FROM children_profiles WHERE id = ? AND user_id = ?', [childId, userId], (err, child) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -592,7 +585,6 @@ app.delete('/api/children/:id', requireAuth, (req, res) => {
             return;
         }
 
-        // Удаляем ребенка
         db.run('DELETE FROM children_profiles WHERE id = ? AND user_id = ?', [childId, userId], function(err) {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -724,7 +716,6 @@ app.get('/api/slider-images', (req, res) => {
     });
 });
 
-// ========== ЭНДПОИНТ ДЛЯ ЧАТА ==========
 // ========== ADMIN API ==========
 app.get('/api/admin/check', requireAdmin, (req, res) => {
     res.json({ success: true, isAdmin: true });
@@ -942,7 +933,6 @@ app.post('/api/chat', async (req, res) => {
             return res.json({ reply: gigaReply });
         }
 
-        // Fallback
         const lower = message.toLowerCase();
         let total = 0;
         let servicesList = [];
@@ -996,58 +986,24 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // ========== СТРАНИЦЫ ==========
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'about.html'));
-});
-app.get('/services', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'services.html'));
-});
-app.get('/price', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'price.html'));
-});
-app.get('/doctors', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'doctors.html'));
-});
-app.get('/hot_sales', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'hot_sales.html'));
-});
-app.get('/appointment', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'appointment.html'));
-});
-app.get('/contacts', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'contacts.html'));
-});
-app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
-});
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'register.html'));
-});
-app.get('/payment', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'payment.html'));
-});
-app.get('/rules', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'rules.html'));
-});
-app.get('/reviews', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'reviews.html'));
-});
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/about', (req, res) => res.sendFile(path.join(__dirname, 'public', 'about.html')));
+app.get('/services', (req, res) => res.sendFile(path.join(__dirname, 'public', 'services.html')));
+app.get('/price', (req, res) => res.sendFile(path.join(__dirname, 'public', 'price.html')));
+app.get('/doctors', (req, res) => res.sendFile(path.join(__dirname, 'public', 'doctors.html')));
+app.get('/hot_sales', (req, res) => res.sendFile(path.join(__dirname, 'public', 'hot_sales.html')));
+app.get('/appointment', (req, res) => res.sendFile(path.join(__dirname, 'public', 'appointment.html')));
+app.get('/contacts', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contacts.html')));
+app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, 'public', 'profile.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
+app.get('/payment', (req, res) => res.sendFile(path.join(__dirname, 'public', 'payment.html')));
+app.get('/rules', (req, res) => res.sendFile(path.join(__dirname, 'public', 'rules.html')));
+app.get('/reviews', (req, res) => res.sendFile(path.join(__dirname, 'public', 'reviews.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
-// 404
-app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
-});
+app.use((req, res) => res.status(404).sendFile(path.join(__dirname, 'public', '404.html')));
 
-// Запуск
-app.listen(PORT, 'localhost', () => {
-    console.log(`Server started on http://${HOST}:${PORT}`);
+app.listen(PORT, HOST, () => {
+    console.log(`🚀 Сервер запущен на http://${HOST}:${PORT}`);
 });
